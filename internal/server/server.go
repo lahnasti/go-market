@@ -9,7 +9,7 @@ import (
 )
 
 type Server struct {
-	Db repository.Repository
+	Db         repository.Repository
 	ErrorChan  chan error
 	deleteChan chan int
 	Valid      *validator.Validate
@@ -17,6 +17,7 @@ type Server struct {
 }
 
 func NewServer(ctx context.Context, db repository.Repository, zlog *zerolog.Logger) *Server {
+	validate := validator.New()
 	dChan := make(chan int, 5)
 	errChan := make(chan error)
 	srv := Server{
@@ -24,6 +25,7 @@ func NewServer(ctx context.Context, db repository.Repository, zlog *zerolog.Logg
 		deleteChan: dChan,
 		ErrorChan:  errChan,
 		log:        *zlog,
+		Valid:      validate,
 	}
 	go srv.deleter(ctx)
 	return &Server{

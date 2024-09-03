@@ -6,8 +6,10 @@ import (
 
 	"github.com/rs/zerolog"
 	"github.com/golang-migrate/migrate/v4"
-
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
+
 
 func Migrations(dbAddr, migrationsPath string, zlog *zerolog.Logger) error {
 	migratePath := fmt.Sprintf("file://%s", migrationsPath)

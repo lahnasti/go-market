@@ -5,12 +5,12 @@ import (
 	"github.com/lahnasti/go-market/internal/server"
 )
 
-func ProductRoutes (r *gin.Engine, server *server.Server) {
-	productGroup := r.Group("/products") 
+func ProductRoutes(r *gin.Engine, server *server.Server) {
+	productGroup := r.Group("/products")
 	{
 		productGroup.GET("/", server.GetAllProductsHandler)
 		productGroup.POST("/add", server.AddProductHandler)
-		productGroup.PUT("/:uid", server.UpdateProductHandler)
-		productGroup.DELETE("/:uid", server.DeleteBookHandler)
+		productGroup.PUT("/:id", server.UpdateProductHandler)
+		productGroup.DELETE("/:id", server.DeleteBookHandler)
 	}
 }

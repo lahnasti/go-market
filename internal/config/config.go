@@ -6,15 +6,15 @@ import (
 )
 
 type Config struct {
-	Addr   string
-	DBAddr string
-	MPath  string
+	Addr      string
+	DBAddr    string
+	MPath     string
 	DebugFlag bool
 }
 
 const (
-	defaultAddr = ":8080"
-	defaultDbDSN = "postgres://nastya:pgspgs@localhost:5455/go-market"
+	defaultAddr        = ":8080"
+	defaultDbDSN       = "postgres://nastya:pgspgs@localhost:5433/postgres?sslmode=disable"
 	defaultMigratePath = "migrations"
 )
 

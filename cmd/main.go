@@ -19,12 +19,12 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func main () {
+func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-		<- c
+		<-c
 		cancel()
 	}()
 	fmt.Println("Server starting")
@@ -42,13 +42,16 @@ func main () {
 	}
 	defer pool.Close()
 
-	storage, err := storage.NewDB(pool)
+	dbStorage, err := storage.NewDB(pool)
 	if err != nil {
 		panic(err)
 	}
 
+	productRepo := storage.NewRepoProduct(dbStorage)
+	
+
 	group, gCtx := errgroup.WithContext(ctx)
-	srv := server.NewServer(gCtx, &storage, zlog)
+	srv := server.NewServer(gCtx, productRepo, zlog)
 	group.Go(func() error {
 		r := gin.Default()
 		routes.ProductRoutes(r, srv)

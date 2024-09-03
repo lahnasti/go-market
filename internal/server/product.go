@@ -38,35 +38,53 @@ func (s *Server) GetAllProductsHandler(ctx *gin.Context) {
 }
 
 func (s *Server) AddProductHandler(ctx *gin.Context) {
+
 	var product models.Product
-    if err := ctx.ShouldBindJSON(&product); err!= nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
-    if err := s.Valid.Struct(product); err!= nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	if err := ctx.ShouldBindJSON(&product); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	// TODO: validate - с этой строчкой код ломается, вызывается паника
+	/*if err := s.Valid.Struct(product); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}*/
 
 	productUID, err := s.Db.AddProduct(product)
 	if err != nil {
-        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-    ctx.JSON(http.StatusCreated, gin.H{"message": "Product added", "uid": productUID})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusCreated, gin.H{"message": "Product added", "uid": productUID})
 }
 
 func (s *Server) UpdateProductHandler(ctx *gin.Context) {
 	var product models.Product
-    if err := ctx.ShouldBindJSON(&product); err!= nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
-    if err := s.Valid.Struct(product); err!= nil {
-        ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	if err := ctx.ShouldBindJSON(&product); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	/*if err := s.Valid.Struct(product); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}*/
 
+	uid := ctx.Param("id")
+	uIdInt, err := strconv.Atoi(uid)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = s.Db.UpdateProduct(uIdInt, product)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"message": "Product updated", "product": product})
+}
+
+func (s *Server) DeleteBookHandler(ctx *gin.Context) {
 	uid := ctx.Param("uid")
 	uIdInt, err := strconv.Atoi(uid)
 	if err != nil {
@@ -74,22 +92,6 @@ func (s *Server) UpdateProductHandler(ctx *gin.Context) {
 		return
 	}
 
-    err = s.Db.UpdateProduct(uIdInt, product)
-    if err!= nil {
-        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-    ctx.JSON(http.StatusOK, gin.H{"message": "Product updated", "product": product})
-}
-
-func (s *Server) DeleteBookHandler(ctx *gin.Context) {
-	uid := ctx.Param("uid")
-    uIdInt, err := strconv.Atoi(uid)
-    if err!= nil {
-        ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-
-    s.deleteChan <- uIdInt
-    ctx.JSON(http.StatusOK, gin.H{"message": "Product deleted", "product_uid": uIdInt})
+	s.deleteChan <- uIdInt
+	ctx.JSON(http.StatusOK, gin.H{"message": "Product deleted", "product_uid": uIdInt})
 }
