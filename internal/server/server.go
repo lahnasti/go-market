@@ -28,9 +28,5 @@ func NewServer(ctx context.Context, db repository.Repository, zlog *zerolog.Logg
 		Valid:      validate,
 	}
 	go srv.deleter(ctx)
-	return &Server{
-		Db:         db,
-		deleteChan: dChan,
-		ErrorChan:  errChan,
-	}
+	return &srv
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lahnasti/go-market/internal/models"
@@ -14,12 +15,12 @@ func (s *Server) deleter(ctx context.Context) {
 		select {
 		case <-ctx.Done():
 			return
-		default:
+		case <-time.After(time.Second):
 			if len(s.deleteChan) == 5 {
 				for i := 0; i < 5; i++ {
 					<-s.deleteChan
 				}
-				if err := s.Db.DeleteProduct(); err != nil {
+				if err := s.Db.DeleteProducts(); err != nil {
 					s.ErrorChan <- err
 					return
 				}
@@ -36,6 +37,20 @@ func (s *Server) GetAllProductsHandler(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "List of products", "products": products})
 }
+
+func (s *Server) GetProductByIDHandler(ctx *gin.Context) {
+	uid := ctx.Param("id")
+	uIdInt, err := strconv.Atoi(uid)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	product, err := s.Db.GetProductByID(uIdInt)
+	if err != nil {
+        ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+        return
+    }
+	ctx.JSON(http.StatusOK, gin.H{"message": "Product found", "product": product})
+	}
 
 func (s *Server) AddProductHandler(ctx *gin.Context) {
 
@@ -84,14 +99,18 @@ func (s *Server) UpdateProductHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Product updated", "product": product})
 }
 
-func (s *Server) DeleteBookHandler(ctx *gin.Context) {
-	uid := ctx.Param("uid")
+func (s *Server) DeleteProductHandler(ctx *gin.Context) {
+	uid := ctx.Param("id")
 	uIdInt, err := strconv.Atoi(uid)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
+	err = s.Db.SetDeleteStatus(uIdInt)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	s.deleteChan <- uIdInt
-	ctx.JSON(http.StatusOK, gin.H{"message": "Product deleted", "product_uid": uIdInt})
+	ctx.JSON(http.StatusOK, gin.H{"message": "Product deleted successfully", "uid": uIdInt})
 }

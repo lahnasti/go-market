@@ -4,5 +4,6 @@ CREATE TABLE IF NOT EXISTS products
         name TEXT NOT NULL,
         description TEXT NOT NULL,
         price double precision NOT NULL,
-        delete BOOLEAN NOT NULL DEFAULT false
+        delete BOOLEAN NOT NULL DEFAULT false,
+        quantity INT NOT NULL
     );

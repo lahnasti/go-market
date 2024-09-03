@@ -9,8 +9,9 @@ func ProductRoutes(r *gin.Engine, server *server.Server) {
 	productGroup := r.Group("/products")
 	{
 		productGroup.GET("/", server.GetAllProductsHandler)
+		productGroup.GET("/:id", server.GetProductByIDHandler)
 		productGroup.POST("/add", server.AddProductHandler)
 		productGroup.PUT("/:id", server.UpdateProductHandler)
-		productGroup.DELETE("/:id", server.DeleteBookHandler)
+		productGroup.DELETE("/:id", server.DeleteProductHandler)
 	}
 }
