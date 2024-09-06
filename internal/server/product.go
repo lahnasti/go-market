@@ -46,11 +46,11 @@ func (s *Server) GetProductByIDHandler(ctx *gin.Context) {
 	}
 	product, err := s.Db.GetProductByID(uIdInt)
 	if err != nil {
-        ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-        return
-    }
-	ctx.JSON(http.StatusOK, gin.H{"message": "Product found", "product": product})
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
 	}
+	ctx.JSON(http.StatusOK, gin.H{"message": "Product found", "product": product})
+}
 
 func (s *Server) AddProductHandler(ctx *gin.Context) {
 
@@ -59,11 +59,10 @@ func (s *Server) AddProductHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// TODO: validate - с этой строчкой код ломается, вызывается паника
-	/*if err := s.Valid.Struct(product); err != nil {
+	if err := s.Valid.Struct(product); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
-	}*/
+	}
 
 	productUID, err := s.Db.AddProduct(product)
 	if err != nil {
@@ -79,10 +78,10 @@ func (s *Server) UpdateProductHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	/*if err := s.Valid.Struct(product); err != nil {
+	if err := s.Valid.Struct(product); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
-	}*/
+	}
 
 	uid := ctx.Param("id")
 	uIdInt, err := strconv.Atoi(uid)
@@ -96,6 +95,9 @@ func (s *Server) UpdateProductHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	product.UID = uIdInt
+
 	ctx.JSON(http.StatusOK, gin.H{"message": "Product updated", "product": product})
 }
 

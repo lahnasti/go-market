@@ -48,7 +48,6 @@ func main() {
 	}
 
 	productRepo := storage.NewRepoProduct(dbStorage)
-	
 
 	group, gCtx := errgroup.WithContext(ctx)
 	srv := server.NewServer(gCtx, productRepo, zlog)
