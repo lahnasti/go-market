@@ -42,7 +42,7 @@ func (s *Server) GetProductByIDHandler(ctx *gin.Context) {
 	uid := ctx.Param("id")
 	uIdInt, err := strconv.Atoi(uid)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid id", "error": err.Error()})
 	}
 	product, err := s.Db.GetProductByID(uIdInt)
 	if err != nil {
@@ -53,14 +53,13 @@ func (s *Server) GetProductByIDHandler(ctx *gin.Context) {
 }
 
 func (s *Server) AddProductHandler(ctx *gin.Context) {
-
 	var product models.Product
 	if err := ctx.ShouldBindJSON(&product); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request data", "error": err.Error()})
 		return
 	}
 	if err := s.Valid.Struct(product); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Not a valid product", "error": err.Error()})
 		return
 	}
 

@@ -7,21 +7,11 @@ import (
 	"time"
 
 	"github.com/lahnasti/go-market/internal/models"
-	"github.com/lahnasti/go-market/internal/repository"
 )
-
-type RepoProduct struct {
-	db *DBstorage
-}
-
-func NewRepoProduct(db *DBstorage) repository.ProductRepository {
-	return &RepoProduct{db: db}
-}
-
-func (r *RepoProduct) GetAllProducts() ([]models.Product, error) {
+func (db *DBstorage) GetAllProducts() ([]models.Product, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	rows, err := r.db.Pool.Query(ctx, "SELECT uid, name, description, price, delete, quantity FROM products")
+	rows, err := db.Pool.Query(ctx, "SELECT uid, name, description, price, delete, quantity FROM products")
 	if err != nil {
 		return nil, err
 	}
@@ -39,10 +29,10 @@ func (r *RepoProduct) GetAllProducts() ([]models.Product, error) {
 	return products, nil
 }
 
-func (r *RepoProduct) GetProductByID(uid int) (*models.Product, error) {
+func (db *DBstorage) GetProductByID(uid int) (*models.Product, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	row := r.db.Pool.QueryRow(ctx, "SELECT * FROM product WHERE uid=$1", uid)
+	row := db.Pool.QueryRow(ctx, "SELECT * FROM product WHERE uid=$1", uid)
 	var product models.Product
 	if err := row.Scan(&product.UID, &product.Name, &product.Description, &product.Price, &product.Delete, &product.Quantity); err != nil {
 		return nil, err
@@ -52,10 +42,10 @@ func (r *RepoProduct) GetProductByID(uid int) (*models.Product, error) {
 	return &product, nil
 }
 
-func (r *RepoProduct) AddProduct(product models.Product) (int, error) {
+func (db *DBstorage) AddProduct(product models.Product) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	row := r.db.Pool.QueryRow(ctx, "INSERT INTO products (name, description, price, quantity) VALUES ($1, $2, $3, $4) RETURNING uid", product.Name, product.Description, product.Price, product.Quantity)
+	row := db.Pool.QueryRow(ctx, "INSERT INTO products (name, description, price, quantity) VALUES ($1, $2, $3, $4) RETURNING uid", product.Name, product.Description, product.Price, product.Quantity)
 	var UID int
 	if err := row.Scan(&UID); err != nil {
 		return -1, err
@@ -63,30 +53,30 @@ func (r *RepoProduct) AddProduct(product models.Product) (int, error) {
 	return UID, nil
 }
 
-func (r *RepoProduct) UpdateProduct(uid int, product models.Product) error {
+func (db *DBstorage) UpdateProduct(uid int, product models.Product) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	_, err := r.db.Pool.Exec(ctx, "UPDATE products SET name=$1, description=$2, price=$3, quantity=$4 WHERE uid=$5", product.Name, product.Description, product.Price, product.Quantity, uid)
+	_, err := db.Pool.Exec(ctx, "UPDATE products SET name=$1, description=$2, price=$3, quantity=$4 WHERE uid=$5", product.Name, product.Description, product.Price, product.Quantity, uid)
 	if err != nil {
 		return fmt.Errorf("update user failed: %w", err)
 	}
 	return nil
 }
 
-func (r *RepoProduct) SetDeleteStatus(uid int) error {
+func (db *DBstorage) SetDeleteStatus(uid int) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	if _, err := r.db.Pool.Exec(ctx, "UPDATE products SET delete = true WHERE uid = $1", uid); err != nil {
+	if _, err := db.Pool.Exec(ctx, "UPDATE products SET delete = true WHERE uid = $1", uid); err != nil {
 		return fmt.Errorf("update delete status failed: %w", err)
 	}
 	return nil
 }
 
-func (r *RepoProduct) DeleteProducts() error {
+func (db *DBstorage) DeleteProducts() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	tx, err := r.db.Pool.Begin(ctx)
+	tx, err := db.Pool.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf("create transaction failed: %w", err)
 	}
