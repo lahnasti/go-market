@@ -17,21 +17,8 @@ import (
 	"github.com/lahnasti/go-market/internal/server/routes"
 	"github.com/lahnasti/go-market/internal/storage"
 	"golang.org/x/sync/errgroup"
-
-	_ "github.com/lahnasti/go-market/docs" // Пакет с документацией Swagger
-    ginSwagger "github.com/swaggo/gin-swagger"
-    "github.com/swaggo/files"
 )
-// @title Todo App API
-// @version 1.0
-// @description API Server for TodoList Application
 
-// @host localhost:8000
-// @BasePath /
-
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
@@ -65,7 +52,6 @@ func main() {
 	group.Go(func() error {
 		r := gin.Default()
 		routes.SetupRoutes(srv)
-		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		zlog.Info().Msg("Server was started")
 
 		if err := r.Run(cfg.Addr); err != nil {

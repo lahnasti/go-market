@@ -55,3 +55,14 @@ func (db *DBstorage) LoginUser(username string, password string) (int, error) {
 	// Успешная авторизация
 	return userID, nil
 }
+
+func (db *DBstorage) IsUsernameUnique(username string)(bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	var count int
+	row := db.Pool.QueryRow(ctx, "SELECT COUNT(*) FROM users WHERE username=$1", username)
+    if err := row.Scan(&count); err!= nil {
+        return false, fmt.Errorf("failed to check username existence: %w", err)
+    }
+	return count > 0, nil
+}
