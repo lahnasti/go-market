@@ -1,8 +1,6 @@
 package models
 
-type User struct {
-	ID       int    `json:"id"`
+type Credentials struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
-	Email    string `json:"email" validate:"required"`
 }

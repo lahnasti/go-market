@@ -10,15 +10,23 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/lahnasti/go-market/docs"
 	"github.com/lahnasti/go-market/internal/config"
 	"github.com/lahnasti/go-market/internal/logger"
 	"github.com/lahnasti/go-market/internal/repository"
 	"github.com/lahnasti/go-market/internal/server"
 	"github.com/lahnasti/go-market/internal/server/routes"
 	"github.com/lahnasti/go-market/internal/storage"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"golang.org/x/sync/errgroup"
 )
 
+// @title Your API Title
+// @version 1.0
+// @description This is a sample server.
+// @host localhost:8080
+// @BasePath /
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
@@ -29,7 +37,6 @@ func main() {
 	}()
 	fmt.Println("Server starting")
 	cfg := config.ReadConfig()
-	fmt.Println(cfg)
 	zlog := logger.SetupLogger(cfg.DebugFlag)
 	zlog.Debug().Any("config", cfg).Msg("Check cfg value")
 	err := repository.Migrations(cfg.DBAddr, cfg.MPath, zlog)
@@ -51,6 +58,7 @@ func main() {
 	srv := server.NewServer(gCtx, dbStorage, zlog)
 	group.Go(func() error {
 		r := gin.Default()
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		routes.SetupRoutes(srv)
 		zlog.Info().Msg("Server was started")
 

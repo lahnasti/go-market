@@ -6,73 +6,124 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/lahnasti/go-market/internal/models"
+	"github.com/lahnasti/go-market/internal/server/responses"
 	"golang.org/x/crypto/bcrypt"
 )
 
+// GetUserProfileHandler получает профиль пользователя по ID
+// @Summary Получение профиля пользователя
+// @Description Возвращает профиль пользователя по указанному ID
+// @Tags Пользователи
+// @Produce json
+// @Param id path int true "ID пользователя"
+// @Success 200 {object} responses.Success
+// @Failure 400 {object} responses.Error
+// @Failure 500 {object} responses.Error
+// @Router /users/{id} [get]
 func (s *Server) GetUserProfileHandler(ctx *gin.Context) {
 	id := ctx.Param("id")
 	userID, err := strconv.Atoi(id)
 	if err != nil || userID <= 0 {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid user ID", "error": err.Error()})
+		responses.SendError(ctx, http.StatusBadRequest, "Invalid user id", err)
 		return
 	}
 	user, err := s.Db.GetUserProfile(userID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		responses.SendError(ctx, http.StatusInternalServerError, "error", err)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "User profile found", "user": user})
+	responses.SendSuccess(ctx, http.StatusOK, "User profile found", user)
 }
 
+// RegisterUserHandler регистрирует нового пользователя
+// @Summary Регистрация нового пользователя
+// @Description Регистрирует нового пользователя с предоставленными данными
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param user body models.User true "User information"
+// @Success 201 {object} responses.Success
+// @Failure 400 {object} responses.Error
+// @Failure 409 {object} responses.Error
+// @Failure 500 {object} responses.Error
+// @Router /users [post]
 func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 	var user models.User
 	if err := ctx.ShouldBindJSON(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request data", "error": err.Error()})
+		responses.SendError(ctx, http.StatusBadRequest, "Invalid request data", err)
 		return
 	}
 	if err := s.Valid.Struct(user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Not a valid user", "error": err.Error()})
+		responses.SendError(ctx, http.StatusBadRequest, "Not a valid purchase", err)
+		return
+	}
+
+	if !isValidUsername(user.Username) {
+		responses.SendError(ctx, http.StatusBadRequest, "Not a valid username", nil)
+		return
+	}
+
+	if !isValidPass(user.Password) {
+		responses.SendError(ctx, http.StatusBadRequest, "Not a valid password", nil)
+		return
+	}
+
+	isUnique, err := s.isUsernameUnique(user.Username)
+	if err != nil {
+		responses.SendError(ctx, http.StatusInternalServerError, "Failed to check username uniqueness", err)
+		return
+	}
+	if !isUnique {
+		responses.SendError(ctx, http.StatusConflict, "Username already taken", nil)
 		return
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to hash password", "error": err.Error()})
+		responses.SendError(ctx, http.StatusInternalServerError, "Failed to hash password", err)
 		return
 	}
 	user.Password = string(hash)
 	id, err := s.Db.RegisterUser(user)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Failed to register user", "error": err.Error()})
+		responses.SendError(ctx, http.StatusInternalServerError, "Failed to register user", err)
 		return
 	}
-	ctx.JSON(http.StatusCreated, gin.H{"message": "User registered successfully", "id": id})
+	responses.SendSuccess(ctx, http.StatusCreated, "User registered successfully", id)
 }
 
+// LoginUserHandler обрабатывает вход пользователя
+// @Summary Вход пользователя
+// @Description Выполняет вход пользователя с указанными учетными данными
+// @Tags Пользователи
+// @Accept json
+// @Produce json
+// @Param credentials body models.Credentials true "Учетные данные пользователя"
+// @Success 200 {object} responses.Success
+// @Failure 400 {object} responses.Error
+// @Failure 401 {object} responses.Error
+// @Failure 500 {object} responses.Error
+// @Router /login [post]
 func (s *Server) LoginUserHandler(ctx *gin.Context) {
-	var credentials struct {
-		Username string `json:"username" validate:"required"`
-		Password string `json:"password" validate:"required"`
-	}
+	var credentials models.Credentials
 	if err := ctx.ShouldBindJSON(&credentials); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Invalid request data", "error": err.Error()})
+		responses.SendError(ctx, http.StatusBadRequest, "Invalid request data", err)
 		return
 	}
 	if err := s.Valid.Struct(credentials); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": "Not a valid user", "error": err.Error()})
+		responses.SendError(ctx, http.StatusBadRequest, "Not a valid user", err)
 		return
 	}
 	userID, err := s.Db.LoginUser(credentials.Username, credentials.Password)
 	if err != nil {
 		if err.Error() == "user not found" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid username or password"})
+			responses.SendError(ctx, http.StatusUnauthorized, "Invalid username or password", err)
 		} else if err.Error() == "invalid password" {
-			ctx.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid username or password"})
+			responses.SendError(ctx, http.StatusUnauthorized, "Invalid password", err)
 		} else {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"message": "Internal server error", "error": err.Error()})
+			responses.SendError(ctx, http.StatusInternalServerError, "error", err)
 		}
 		return
 	}
-
-	ctx.JSON(http.StatusOK, gin.H{"message": "User was login", "user_id": userID})
+	responses.SendSuccess(ctx, http.StatusOK, "User was login successfully", userID)
 }

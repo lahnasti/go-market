@@ -19,13 +19,21 @@ $ — указывает на конец строки.
 */
 
 func isValidUsername(username string)bool {
-	usernameR := regexp.MustCompile(usernameR)
-	return usernameR.MatchString(username)
+	match, _ := regexp.MatchString(usernameR, username)
+	return match
 }
 
 func isValidPass(password string)bool {
-	passR := regexp.MustCompile(passR)
-    return passR.MatchString(password)
+	if match, _ := regexp.MatchString(passR, password); !match {
+		return false
+	}
+	if match, _ := regexp.MatchString(`[A-Za-z]`, password); !match {
+		return false
+	}
+	if match, _ := regexp.MatchString(`\d`, password); !match {
+		return false
+    }
+	return true
 }
 
 func(s *Server) isUsernameUnique(username string)(bool, error) {
