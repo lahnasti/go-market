@@ -8,7 +8,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lahnasti/go-market/docs"
 	"github.com/lahnasti/go-market/internal/config"
@@ -17,8 +16,9 @@ import (
 	"github.com/lahnasti/go-market/internal/server"
 	"github.com/lahnasti/go-market/internal/server/routes"
 	"github.com/lahnasti/go-market/internal/storage"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+
+	//swaggerFiles "github.com/swaggo/files"
+	//ginSwagger "github.com/swaggo/gin-swagger"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -31,7 +31,8 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		c := make(chan os.Signal, 1)
-		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+		fmt.Println("Received shutdown signal")
 		<-c
 		cancel()
 	}()
@@ -53,13 +54,13 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer dbStorage.Close()
 
 	group, gCtx := errgroup.WithContext(ctx)
 	srv := server.NewServer(gCtx, dbStorage, zlog)
 	group.Go(func() error {
-		r := gin.Default()
-		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-		routes.SetupRoutes(srv)
+		//r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+		r := routes.SetupRoutes(srv)
 		zlog.Info().Msg("Server was started")
 
 		if err := r.Run(cfg.Addr); err != nil {
@@ -78,7 +79,9 @@ func main() {
 	})
 
 	if err := group.Wait(); err != nil {
-		panic(err)
+		zlog.Fatal().Err(err).Msg("Error during server shutdown")
+	} else {
+		zlog.Info().Msg("Server excited gracefully")
 	}
 }
 

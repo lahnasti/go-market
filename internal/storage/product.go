@@ -8,6 +8,7 @@ import (
 
 	"github.com/lahnasti/go-market/internal/models"
 )
+
 func (db *DBstorage) GetAllProducts() ([]models.Product, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -32,7 +33,7 @@ func (db *DBstorage) GetAllProducts() ([]models.Product, error) {
 func (db *DBstorage) GetProductByID(uid int) (*models.Product, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	row := db.Pool.QueryRow(ctx, "SELECT * FROM product WHERE uid=$1", uid)
+	row := db.Pool.QueryRow(ctx, "SELECT * FROM products WHERE uid=$1", uid)
 	var product models.Product
 	if err := row.Scan(&product.UID, &product.Name, &product.Description, &product.Price, &product.Delete, &product.Quantity); err != nil {
 		return nil, err

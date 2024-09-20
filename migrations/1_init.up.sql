@@ -19,10 +19,8 @@ CREATE TABLE IF NOT EXISTS products
 CREATE TABLE IF NOT EXISTS purchases
     (
         uid serial PRIMARY KEY,
-        user_id INT NOT NULL,
-        product_id INT NOT NULL,
+        user_id INT NOT NULL REFERENCES users(id),
+        product_id INT NOT NULL REFERENCES products(uid),
         quantity INT NOT NULL,
-        purchase_date TIMESTAMP NOT NULL DEFAULT NOW(),
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (product_id) REFERENCES products(uid)
+        purchase_date TIMESTAMP NOT NULL DEFAULT NOW()
     );

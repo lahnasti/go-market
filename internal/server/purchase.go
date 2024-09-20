@@ -8,6 +8,7 @@ import (
 	"github.com/lahnasti/go-market/internal/models"
 	"github.com/lahnasti/go-market/internal/server/responses"
 )
+
 // MakePurchaseHandler обрабатывает создание новой покупки
 // @Summary Создание покупки
 // @Description Создает новую покупку для указанного продукта
@@ -29,6 +30,17 @@ func (s *Server) MakePurchaseHandler(ctx *gin.Context) {
 		responses.SendError(ctx, http.StatusBadRequest, "Not a valid purchase", err)
 		return
 	}
+	_, err := s.Db.GetUserProfile(purchase.UserID)
+	if err != nil {
+		responses.SendError(ctx, http.StatusNotFound, "User with such username not found", err)
+		return
+	}
+	_, err = s.Db.GetProductByID(purchase.ProductID)
+	if err != nil {
+		responses.SendError(ctx, http.StatusNotFound, "Product not found", err)
+		return
+	}
+
 	if purchase.Quantity <= 0 {
 		responses.SendError(ctx, http.StatusBadRequest, "Quantity must be greater than 0", nil)
 		return
@@ -40,6 +52,7 @@ func (s *Server) MakePurchaseHandler(ctx *gin.Context) {
 	}
 	responses.SendSuccess(ctx, http.StatusOK, "Purchase successfully completed", purchaseID)
 }
+
 // GetUserPurchasesHandler получает покупки пользователя
 // @Summary Получение списка покупок пользователя
 // @Description Возвращает список покупок для указанного пользователя
@@ -64,6 +77,7 @@ func (s *Server) GetUserPurchasesHandler(ctx *gin.Context) {
 	}
 	responses.SendSuccess(ctx, http.StatusOK, "List purchase found", purchases)
 }
+
 // GetProductPurchasesHandler получает покупки по продукту
 // @Summary Получение списка покупок по продукту
 // @Description Возвращает список покупок для указанного продукта
@@ -76,15 +90,15 @@ func (s *Server) GetUserPurchasesHandler(ctx *gin.Context) {
 // @Router /products/{id}/purchases [get]
 func (s *Server) GetProductPurchasesHandler(ctx *gin.Context) {
 	productId := ctx.Param("id")
-    uIdInt, err := strconv.Atoi(productId)
-    if err!= nil || uIdInt <= 0 {
+	uIdInt, err := strconv.Atoi(productId)
+	if err != nil || uIdInt <= 0 {
 		responses.SendError(ctx, http.StatusBadRequest, "Invalid product id", err)
-        return
-    }
-    purchases, err := s.Db.GetProductPurchases(uIdInt)
-    if err!= nil {
+		return
+	}
+	purchases, err := s.Db.GetProductPurchases(uIdInt)
+	if err != nil {
 		responses.SendError(ctx, http.StatusInternalServerError, "error", err)
-        return
-    }
+		return
+	}
 	responses.SendSuccess(ctx, http.StatusOK, "List purchase found", purchases)
 }

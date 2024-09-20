@@ -7,7 +7,7 @@ import (
 type Error struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`
-	Error   string `json:"error"`
+	Error   string `json:"error,omitempty"`
 }
 
 type Success struct {
@@ -17,11 +17,15 @@ type Success struct {
 }
 
 func SendError(ctx *gin.Context, status int, message string, err error) {
-	ctx.JSON(status, Error{
-		Status:  status,
-		Message: message,
-		Error:   err.Error(),
-	})
+	errorMessage := ""
+    if err != nil {
+        errorMessage = err.Error()
+    }
+    ctx.JSON(status, Error{
+        Status:  status,
+        Message: message,
+        Error:   errorMessage,
+    })
 }
 
 func SendSuccess(ctx *gin.Context, status int, message string, data interface{}) {

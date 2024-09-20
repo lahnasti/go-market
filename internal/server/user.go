@@ -64,7 +64,7 @@ func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 	}
 
 	if !isValidPass(user.Password) {
-		responses.SendError(ctx, http.StatusBadRequest, "Not a valid password", nil)
+		responses.SendError(ctx, http.StatusBadRequest, "Password must contain at least 8 characters", nil)
 		return
 	}
 

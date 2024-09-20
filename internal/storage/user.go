@@ -16,7 +16,7 @@ func (db *DBstorage) GetUserProfile(id int) (models.User, error) {
 	row := db.Pool.QueryRow(ctx, "SELECT * FROM users WHERE id=$1", id)
 	var user models.User
 	//Нужно ли пароль выводить?
-	if err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password); err != nil {
+	if err := row.Scan(&user.ID, &user.Username, &user.Password, &user.Email); err != nil {
 		return models.User{}, err
 	}
 	return user, nil
@@ -64,5 +64,5 @@ func (db *DBstorage) IsUsernameUnique(username string)(bool, error) {
     if err := row.Scan(&count); err!= nil {
         return false, fmt.Errorf("failed to check username existence: %w", err)
     }
-	return count > 0, nil
+	return count == 0, nil
 }
