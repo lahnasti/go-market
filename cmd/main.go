@@ -17,8 +17,8 @@ import (
 	"github.com/lahnasti/go-market/internal/server/routes"
 	"github.com/lahnasti/go-market/internal/storage"
 
-	//swaggerFiles "github.com/swaggo/files"
-	//ginSwagger "github.com/swaggo/gin-swagger"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -59,8 +59,8 @@ func main() {
 	group, gCtx := errgroup.WithContext(ctx)
 	srv := server.NewServer(gCtx, dbStorage, zlog)
 	group.Go(func() error {
-		//r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		r := routes.SetupRoutes(srv)
+		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		zlog.Info().Msg("Server was started")
 
 		if err := r.Run(cfg.Addr); err != nil {
