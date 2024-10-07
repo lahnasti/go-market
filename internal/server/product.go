@@ -41,12 +41,10 @@ func (s *Server) deleter(ctx context.Context) {
 func (s *Server) GetAllProductsHandler(ctx *gin.Context) {
 	products, err := s.Db.GetAllProducts()
 	if err != nil {
-		//responses.SendError(ctx, http.StatusInternalServerError, "message", err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		responses.SendError(ctx, http.StatusInternalServerError, "message", err)
 		return
 	}
-	//responses.SendSuccess(ctx, http.StatusOK, "List of products", products)
-	ctx.JSON(http.StatusOK, gin.H{"products": products})
+	responses.SendSuccess(ctx, http.StatusOK, "List of products", products)
 }
 
 // GetProductByIDHandler godoc
@@ -133,15 +131,15 @@ func (s *Server) UpdateProductHandler(ctx *gin.Context) {
 		responses.SendError(ctx, http.StatusInternalServerError, "error", err)
 		return
 	}
+	product.UID = uIdInt
 
-	err = s.Db.UpdateProduct(uIdInt, product)
+	productUID, err := s.Db.UpdateProduct(uIdInt, product)
 	if err != nil {
 		responses.SendError(ctx, http.StatusInternalServerError, "error", err)
 		return
 	}
 
-	product.UID = uIdInt
-	responses.SendSuccess(ctx, http.StatusOK, "Product updated", product)
+	responses.SendSuccess(ctx, http.StatusOK, "Product updated", productUID)
 }
 
 // / DeleteProductHandler godoc

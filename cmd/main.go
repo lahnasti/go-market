@@ -15,16 +15,15 @@ import (
 	"github.com/lahnasti/go-market/internal/repository"
 	"github.com/lahnasti/go-market/internal/server"
 	"github.com/lahnasti/go-market/internal/server/routes"
-	"github.com/lahnasti/go-market/internal/storage"
 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"golang.org/x/sync/errgroup"
 )
 
-// @title Your API Title
+// @title Go-market
 // @version 1.0
-// @description This is a sample server.
+// @description This is a sample server for marke.
 // @host localhost:8080
 // @BasePath /
 func main() {
@@ -50,7 +49,7 @@ func main() {
 	}
 	defer pool.Close()
 
-	dbStorage, err := storage.NewDB(pool)
+	dbStorage, err := repository.NewDB(pool)
 	if err != nil {
 		panic(err)
 	}

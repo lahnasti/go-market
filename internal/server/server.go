@@ -6,6 +6,7 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/lahnasti/go-market/internal/repository"
 	"github.com/rs/zerolog"
+	"github.com/streadway/amqp"
 )
 
 type Server struct {
@@ -14,6 +15,8 @@ type Server struct {
 	deleteChan chan int
 	Valid      *validator.Validate
 	log        zerolog.Logger
+	RabbitConn *amqp.Connection
+	RabbitChan *amqp.Channel
 }
 
 func NewServer(ctx context.Context, db repository.Repository, zlog *zerolog.Logger) *Server {

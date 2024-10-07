@@ -13,7 +13,7 @@ import (
 // GetUserProfileHandler получает профиль пользователя по ID
 // @Summary Получение профиля пользователя
 // @Description Возвращает профиль пользователя по указанному ID
-// @Tags Пользователи
+// @Tags users
 // @Produce json
 // @Param id path int true "ID пользователя"
 // @Success 200 {object} responses.Success
@@ -89,13 +89,17 @@ func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 		responses.SendError(ctx, http.StatusInternalServerError, "Failed to register user", err)
 		return
 	}
+	if err := s.sendUserRegisteredMessage(user, id); err!=nil {
+		responses.SendError(ctx, http.StatusInternalServerError, "Failed to send user registered message", err)
+        return
+	}
 	responses.SendSuccess(ctx, http.StatusCreated, "User registered successfully", id)
 }
 
 // LoginUserHandler обрабатывает вход пользователя
 // @Summary Вход пользователя
 // @Description Выполняет вход пользователя с указанными учетными данными
-// @Tags Пользователи
+// @Tags users
 // @Accept json
 // @Produce json
 // @Param credentials body models.Credentials true "Учетные данные пользователя"
