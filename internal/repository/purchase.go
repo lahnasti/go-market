@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/huandu/go-sqlbuilder"
+	"github.com/jackc/pgx/v5"
+
 	"github.com/lahnasti/go-market/internal/models"
 )
 
@@ -15,10 +18,25 @@ func (db *DBstorage) MakePurchase(purchase models.Purchase) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	defer tx.Rollback(ctx)
-	// Уменьшаем количество продукта в таблице products
-	updateQuery := `UPDATE products SET quantity = quantity - $1 WHERE uid = $2 AND quantity >= $1`
-	result, err := tx.Exec(ctx, updateQuery, purchase.Quantity, purchase.ProductID)
+	defer func(tx pgx.Tx) {
+		if p := recover(); p != nil {
+			tx.Rollback(ctx) // Восстановление после паники
+			panic(p)         // Повторный вызов паники
+		} else if err != nil {
+			tx.Rollback(ctx) // Откат транзакции в случае ошибки
+		}
+	}(tx)
+
+	sb := sqlbuilder.NewUpdateBuilder()
+	updQuery, args := sb.Update("products").
+						Set("quantity", sb.Add("quantity", -purchase.Quantity)).
+						Where(
+							sb.Equal("uid", purchase.ProductID),
+							sb.GreaterEqualThan("quantity", purchase.Quantity),
+						).Build()
+
+
+	result, err := tx.Exec(ctx, updQuery, args...)
 	if err != nil {
 		return -1, err
 	}
@@ -28,8 +46,13 @@ func (db *DBstorage) MakePurchase(purchase models.Purchase) (int, error) {
 		return -1, fmt.Errorf("not enough product quantity available or product does not exist")
 	}
 
-	insertQuery := `INSERT INTO purchases (user_id, product_id, quantity) VALUES ($1, $2, $3) RETURNING uid`
-	row := tx.QueryRow(ctx, insertQuery, purchase.UserID, purchase.ProductID, purchase.Quantity)
+	insertSb := sqlbuilder.NewInsertBuilder()
+	query, args := insertSb.InsertInto("purchases").
+					Cols("user_id", "product_id", "quantity").
+					Values(purchase.UserID, purchase.ProductID, purchase.Quantity).
+					Build()
+
+	row := tx.QueryRow(ctx, query, args...)
 	var UID int
 	if err := row.Scan(&UID); err != nil {
 		return -1, err
@@ -44,11 +67,14 @@ func (db *DBstorage) MakePurchase(purchase models.Purchase) (int, error) {
 func (db *DBstorage) GetUserPurchases(userID int) ([]models.Purchase, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	rows, err := db.Pool.Query(ctx, "SELECT * FROM purchases WHERE user_id=$1", userID)
+
+	sb := sqlbuilder.NewSelectBuilder()
+	query, args := sb.Select("*").From("purchases").Where(sb.Equal("user_id", userID)).Build()
+
+	rows, err := db.Pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 	var purchases []models.Purchase
 	for rows.Next() {
 		var purchase models.Purchase
@@ -66,7 +92,11 @@ func (db *DBstorage) GetUserPurchases(userID int) ([]models.Purchase, error) {
 func (db *DBstorage) GetProductPurchases(productID int) ([]models.Purchase, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	rows, err := db.Pool.Query(ctx, "SELECT * FROM purchases WHERE product_id=$1", productID)
+
+	sb := sqlbuilder.NewSelectBuilder()
+	query, args := sb.Select("*").From("purchases").Where(sb.Equal("product_id", productID)).Build()
+
+	rows, err := db.Pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

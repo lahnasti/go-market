@@ -30,10 +30,10 @@ func (s *Server) deleter(ctx context.Context) {
 	}
 }
 
-// GetAllProductsHandler godoc
-// @Summary Get all products
-// @Description Получить список всех продуктов
-// @Tags products
+// GetAllProductsHandler получает все продукты
+// @Summary Получить список всех продуктов
+// @Description Возвращает список всех продуктов
+// @Tags Продукты
 // @Produce json
 // @Success 200 {object} responses.Success
 // @Failure 500 {object} responses.Error
@@ -47,10 +47,10 @@ func (s *Server) GetAllProductsHandler(ctx *gin.Context) {
 	responses.SendSuccess(ctx, http.StatusOK, "List of products", products)
 }
 
-// GetProductByIDHandler godoc
-// @Summary Get a product by ID
+// GetProductByIDHandler получает проукты по id
+// @Summary Получение списка продуктов по id
 // @Description Получить продукт по ID
-// @Tags products
+// @Tags Продукты
 // @Param id path int true "Product ID"
 // @Produce json
 // @Success 200 {object} responses.Success
@@ -72,17 +72,17 @@ func (s *Server) GetProductByIDHandler(ctx *gin.Context) {
 	responses.SendSuccess(ctx, http.StatusOK, "Product found", product)
 }
 
-// AddProductHandler godoc
-// @Summary Add a new product
-// @Description Добавить новый продукт
-// @Tags products
+// AddProductHandler добавить новые продукт
+// @Summary Добавление нового продукта
+// @Description Создает новый продукт
+// @Tags Продукты
 // @Accept json
 // @Produce json
 // @Param product body models.Product true "Product data"
 // @Success 201 {object} responses.Success
 // @Failure 400 {object} responses.Error
 // @Failure 500 {object} responses.Error
-// @Router /products [post]
+// @Router /products/add [post]
 func (s *Server) AddProductHandler(ctx *gin.Context) {
 	var product models.Product
 	if err := ctx.ShouldBindJSON(&product); err != nil {
@@ -93,6 +93,15 @@ func (s *Server) AddProductHandler(ctx *gin.Context) {
 		responses.SendError(ctx, http.StatusBadRequest, "Not a valid product", err)
 		return
 	}
+	exists, err := s.Db.IsProductUnique(product.Name)
+	if err != nil {
+		responses.SendError(ctx, http.StatusInternalServerError, "error", err)
+        return
+	}
+	if !exists {
+		responses.SendError(ctx, http.StatusBadRequest, "Product name already exists", nil)
+        return
+	}
 
 	productUID, err := s.Db.AddProduct(product)
 	if err != nil {
@@ -102,10 +111,10 @@ func (s *Server) AddProductHandler(ctx *gin.Context) {
 	responses.SendSuccess(ctx, http.StatusCreated, "Product added", productUID)
 }
 
-// UpdateProductHandler godoc
-// @Summary Update a product
+// UpdateProductHandler обновляет данные продукта
+// @Summary Обновление продукта
 // @Description Обновить данные продукта
-// @Tags products
+// @Tags Продукты
 // @Accept json
 // @Produce json
 // @Param id path int true "Product ID"
@@ -142,10 +151,10 @@ func (s *Server) UpdateProductHandler(ctx *gin.Context) {
 	responses.SendSuccess(ctx, http.StatusOK, "Product updated", productUID)
 }
 
-// / DeleteProductHandler godoc
-// @Summary Delete a product
+// / DeleteProductHandler удаление продукта
+// @Summary Удаляет продукты по ID
 // @Description Удалить продукт по ID
-// @Tags products
+// @Tags Продукты
 // @Param id path int true "Product ID"
 // @Produce json
 // @Success 200 {object} responses.Success

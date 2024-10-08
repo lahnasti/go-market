@@ -16,14 +16,13 @@ import (
 	"github.com/lahnasti/go-market/internal/server"
 	"github.com/lahnasti/go-market/internal/server/routes"
 
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
+	
 	"golang.org/x/sync/errgroup"
 )
 
 // @title Go-market
 // @version 1.0
-// @description This is a sample server for marke.
+// @description This is a sample server for market.
 // @host localhost:8080
 // @BasePath /
 func main() {
@@ -59,7 +58,6 @@ func main() {
 	srv := server.NewServer(gCtx, dbStorage, zlog)
 	group.Go(func() error {
 		r := routes.SetupRoutes(srv)
-		r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 		zlog.Info().Msg("Server was started")
 
 		if err := r.Run(cfg.Addr); err != nil {

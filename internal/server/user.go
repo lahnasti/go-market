@@ -13,7 +13,7 @@ import (
 // GetUserProfileHandler получает профиль пользователя по ID
 // @Summary Получение профиля пользователя
 // @Description Возвращает профиль пользователя по указанному ID
-// @Tags users
+// @Tags Пользователи
 // @Produce json
 // @Param id path int true "ID пользователя"
 // @Success 200 {object} responses.Success
@@ -38,7 +38,7 @@ func (s *Server) GetUserProfileHandler(ctx *gin.Context) {
 // RegisterUserHandler регистрирует нового пользователя
 // @Summary Регистрация нового пользователя
 // @Description Регистрирует нового пользователя с предоставленными данными
-// @Tags users
+// @Tags Пользователи
 // @Accept json
 // @Produce json
 // @Param user body models.User true "User information"
@@ -46,7 +46,7 @@ func (s *Server) GetUserProfileHandler(ctx *gin.Context) {
 // @Failure 400 {object} responses.Error
 // @Failure 409 {object} responses.Error
 // @Failure 500 {object} responses.Error
-// @Router /users [post]
+// @Router /users/register [post]
 func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 	var user models.User
 	if err := ctx.ShouldBindJSON(&user); err != nil {
@@ -99,7 +99,7 @@ func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 // LoginUserHandler обрабатывает вход пользователя
 // @Summary Вход пользователя
 // @Description Выполняет вход пользователя с указанными учетными данными
-// @Tags users
+// @Tags Пользователи
 // @Accept json
 // @Produce json
 // @Param credentials body models.Credentials true "Учетные данные пользователя"
@@ -107,7 +107,7 @@ func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 // @Failure 400 {object} responses.Error
 // @Failure 401 {object} responses.Error
 // @Failure 500 {object} responses.Error
-// @Router /login [post]
+// @Router /users/login [post]
 func (s *Server) LoginUserHandler(ctx *gin.Context) {
 	var credentials models.Credentials
 	if err := ctx.ShouldBindJSON(&credentials); err != nil {

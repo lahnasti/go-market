@@ -58,9 +58,9 @@ func (db *DBstorage) AddProduct(product models.Product) (int, error) {
 
 	sb := sqlbuilder.NewInsertBuilder()
 	query, args := sb.InsertInto("products").Cols("name", "description", "price", "quantity").
-					Values(product.Name, product.Description, product.Price, product.Quantity).
-					BuildWithFlavor(sqlbuilder.PostgreSQL)
-					query += "RETURNING uid"
+		Values(product.Name, product.Description, product.Price, product.Quantity).
+		BuildWithFlavor(sqlbuilder.PostgreSQL)
+	query += "RETURNING uid"
 
 	var UID int
 	err := db.Pool.QueryRow(ctx, query, args...).Scan(&UID)
@@ -75,15 +75,16 @@ func (db *DBstorage) UpdateProduct(uid int, product models.Product) (int, error)
 	defer cancel()
 	sb := sqlbuilder.NewUpdateBuilder()
 	query, args := sb.Update("products").
-					Set(
-						sb.Assign("name", product.Name),
-					    sb.Assign("description", product.Description),
-                        sb.Assign("price", product.Price),
-                        sb.Assign("quantity", product.Quantity),
-                    ).
-					Where(sb.Equal("uid", product.UID)).
-					Build()
-					query += "RETURNING uid"
+		Set(
+			sb.Assign("name", product.Name),
+			sb.Assign("description", product.Description),
+			sb.Assign("price", product.Price),
+			sb.Assign("quantity", product.Quantity),
+		).
+		Where(sb.Equal("uid", uid)).
+		Build()
+	query = query + " RETURNING uid"
+	fmt.Printf("Generated query: %s, args: %v\n", query, args)
 
 	var UID int
 	err := db.Pool.QueryRow(ctx, query, args...).Scan(&UID)
@@ -99,11 +100,11 @@ func (db *DBstorage) SetDeleteStatus(uid int) error {
 
 	sb := sqlbuilder.NewUpdateBuilder()
 	query, args := sb.Update("products").
-					Set("delete", "true").Where(sb.Equal("uid", uid)).Build()
+		Set("delete", "true").Where(sb.Equal("uid", uid)).Build()
 
 	_, err := db.Pool.Exec(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("failed to set delete status: %w", err) 
+		return fmt.Errorf("failed to set delete status: %w", err)
 	}
 	return nil
 }
@@ -123,8 +124,8 @@ func (db *DBstorage) DeleteProducts() error {
 
 	sb := sqlbuilder.NewDeleteBuilder()
 	query, args := sb.DeleteFrom("products").
-					Where(sb.Equal("delete", true)).
-					Build()
+		Where(sb.Equal("delete", true)).
+		Build()
 
 	if _, err := tx.Exec(ctx, query, args...); err != nil {
 		return fmt.Errorf("create prepare sql str failed: %w", err)
@@ -134,4 +135,20 @@ func (db *DBstorage) DeleteProducts() error {
 		return fmt.Errorf("failed delete product: %w", err)
 	}
 	return nil
+}
+
+// Дополнительная функция для проверки уникальности имени продукта
+func (db *DBstorage) IsProductUnique(name string) (bool, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	sb := sqlbuilder.NewSelectBuilder()
+	query, args := sb.Select("COUNT(*)").From("products").Where(sb.Equal("name", name)).Build()
+
+	var count int
+	row := db.Pool.QueryRow(ctx, query, args...)
+	if err := row.Scan(&count); err != nil {
+		return false, fmt.Errorf("failed to check product existence: %w", err)
+	}
+	return count == 0, nil
 }

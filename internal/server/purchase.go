@@ -19,7 +19,7 @@ import (
 // @Success 200 {object} responses.Success
 // @Failure 400 {object} responses.Error
 // @Failure 500 {object} responses.Error
-// @Router /purchases [post]
+// @Router /purchases/add [post]
 func (s *Server) MakePurchaseHandler(ctx *gin.Context) {
 	var purchase models.Purchase
 	if err := ctx.ShouldBindJSON(&purchase); err != nil {
@@ -62,7 +62,7 @@ func (s *Server) MakePurchaseHandler(ctx *gin.Context) {
 // @Success 200 {object} responses.Success
 // @Failure 400 {object} responses.Error
 // @Failure 500 {object} responses.Error
-// @Router /users/{id}/purchases [get]
+// @Router /purchases/user/{id} [get]
 func (s *Server) GetUserPurchasesHandler(ctx *gin.Context) {
 	userID := ctx.Param("id")
 	uIdInt, err := strconv.Atoi(userID)
@@ -87,7 +87,7 @@ func (s *Server) GetUserPurchasesHandler(ctx *gin.Context) {
 // @Success 200 {object} responses.Success
 // @Failure 400 {object} responses.Error
 // @Failure 500 {object} responses.Error
-// @Router /products/{id}/purchases [get]
+// @Router /purchases/product/{id} [get]
 func (s *Server) GetProductPurchasesHandler(ctx *gin.Context) {
 	productId := ctx.Param("id")
 	uIdInt, err := strconv.Atoi(productId)

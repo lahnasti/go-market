@@ -15,85 +15,35 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/login": {
-            "post": {
-                "description": "Выполняет вход пользователя с указанными учетными данными",
-                "consumes": [
-                    "application/json"
-                ],
+        "/products": {
+            "get": {
+                "description": "Возвращает список всех продуктов",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Пользователи"
+                    "Продукты"
                 ],
-                "summary": "Вход пользователя",
-                "parameters": [
-                    {
-                        "description": "Учетные данные пользователя",
-                        "name": "credentials",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_models.Credentials"
-                        }
-                    }
-                ],
+                "summary": "Получить список всех продуктов",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Success"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
             }
         },
-        "/products": {
-            "get": {
-                "description": "Получить список всех продуктов",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "products"
-                ],
-                "summary": "Get all products",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
-                        }
-                    }
-                }
-            },
+        "/products/add": {
             "post": {
-                "description": "Добавить новый продукт",
+                "description": "Создает новый продукт",
                 "consumes": [
                     "application/json"
                 ],
@@ -101,9 +51,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Продукты"
                 ],
-                "summary": "Add a new product",
+                "summary": "Добавление нового продукта",
                 "parameters": [
                     {
                         "description": "Product data",
@@ -111,7 +61,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_models.Product"
+                            "$ref": "#/definitions/models.Product"
                         }
                     }
                 ],
@@ -119,19 +69,19 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
+                            "$ref": "#/definitions/responses.Success"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
@@ -144,9 +94,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Продукты"
                 ],
-                "summary": "Get a product by ID",
+                "summary": "Получение списка продуктов по id",
                 "parameters": [
                     {
                         "type": "integer",
@@ -160,19 +110,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
+                            "$ref": "#/definitions/responses.Success"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
@@ -186,9 +136,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Продукты"
                 ],
-                "summary": "Update a product",
+                "summary": "Обновление продукта",
                 "parameters": [
                     {
                         "type": "integer",
@@ -203,7 +153,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_models.Product"
+                            "$ref": "#/definitions/models.Product"
                         }
                     }
                 ],
@@ -211,19 +161,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
+                            "$ref": "#/definitions/responses.Success"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
@@ -234,9 +184,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "products"
+                    "Продукты"
                 ],
-                "summary": "Delete a product",
+                "summary": "Удаляет продукты по ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -250,25 +200,71 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
+                            "$ref": "#/definitions/responses.Success"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
             }
         },
-        "/products/{id}/purchases": {
+        "/purchases/add": {
+            "post": {
+                "description": "Создает новую покупку для указанного продукта",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Покупки"
+                ],
+                "summary": "Создание покупки",
+                "parameters": [
+                    {
+                        "description": "Данные о покупке",
+                        "name": "purchase",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Purchase"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/purchases/product/{id}": {
             "get": {
                 "description": "Возвращает список покупок для указанного продукта",
                 "produces": [
@@ -291,27 +287,68 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
+                            "$ref": "#/definitions/responses.Success"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
             }
         },
-        "/purchases": {
+        "/purchases/user/{id}": {
+            "get": {
+                "description": "Возвращает список покупок для указанного пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Покупки"
+                ],
+                "summary": "Получение списка покупок пользователя",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Success"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
             "post": {
-                "description": "Создает новую покупку для указанного продукта",
+                "description": "Выполняет вход пользователя с указанными учетными данными",
                 "consumes": [
                     "application/json"
                 ],
@@ -319,17 +356,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Покупки"
+                    "Пользователи"
                 ],
-                "summary": "Создание покупки",
+                "summary": "Вход пользователя",
                 "parameters": [
                     {
-                        "description": "Данные о покупке",
-                        "name": "purchase",
+                        "description": "Учетные данные пользователя",
+                        "name": "credentials",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_models.Purchase"
+                            "$ref": "#/definitions/models.Credentials"
                         }
                     }
                 ],
@@ -337,25 +374,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
+                            "$ref": "#/definitions/responses.Success"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
             }
         },
-        "/users": {
+        "/users/register": {
             "post": {
                 "description": "Регистрирует нового пользователя с предоставленными данными",
                 "consumes": [
@@ -365,7 +408,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Пользователи"
                 ],
                 "summary": "Регистрация нового пользователя",
                 "parameters": [
@@ -375,7 +418,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_models.User"
+                            "$ref": "#/definitions/models.User"
                         }
                     }
                 ],
@@ -383,25 +426,25 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
+                            "$ref": "#/definitions/responses.Success"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
@@ -430,60 +473,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
+                            "$ref": "#/definitions/responses.Success"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{id}/purchases": {
-            "get": {
-                "description": "Возвращает список покупок для указанного пользователя",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Покупки"
-                ],
-                "summary": "Получение списка покупок пользователя",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID пользователя",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error"
+                            "$ref": "#/definitions/responses.Error"
                         }
                     }
                 }
@@ -491,7 +493,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "github_com_lahnasti_go-market_internal_models.Credentials": {
+        "models.Credentials": {
             "type": "object",
             "required": [
                 "password",
@@ -506,7 +508,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lahnasti_go-market_internal_models.Product": {
+        "models.Product": {
             "type": "object",
             "required": [
                 "description",
@@ -525,42 +527,44 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "price": {
-                    "type": "number"
+                    "type": "number",
+                    "minimum": 1
                 },
                 "quantity": {
-                    "type": "integer"
+                    "type": "integer",
+                    "minimum": 1
                 },
                 "uid": {
                     "type": "integer"
                 }
             }
         },
-        "github_com_lahnasti_go-market_internal_models.Purchase": {
+        "models.Purchase": {
             "type": "object",
             "required": [
-                "productId",
+                "productID",
                 "quantity",
-                "userId"
+                "userID"
             ],
             "properties": {
-                "id": {
+                "productID": {
                     "type": "integer"
                 },
-                "productId": {
-                    "type": "integer"
+                "purchase_date": {
+                    "type": "string"
                 },
                 "quantity": {
                     "type": "integer"
                 },
-                "timestamp": {
-                    "type": "string"
+                "uid": {
+                    "type": "integer"
                 },
-                "userId": {
+                "userID": {
                     "type": "integer"
                 }
             }
         },
-        "github_com_lahnasti_go-market_internal_models.User": {
+        "models.User": {
             "type": "object",
             "required": [
                 "email",
@@ -582,7 +586,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lahnasti_go-market_internal_server_responses.Error": {
+        "responses.Error": {
             "type": "object",
             "properties": {
                 "error": {
@@ -596,7 +600,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_lahnasti_go-market_internal_server_responses.Success": {
+        "responses.Success": {
             "type": "object",
             "properties": {
                 "data": {},
@@ -617,8 +621,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "Your API Title",
-	Description:      "This is a sample server.",
+	Title:            "Go-market",
+	Description:      "This is a sample server for market.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

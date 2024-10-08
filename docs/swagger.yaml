@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  github_com_lahnasti_go-market_internal_models.Credentials:
+  models.Credentials:
     properties:
       password:
         type: string
@@ -10,7 +10,7 @@ definitions:
     - password
     - username
     type: object
-  github_com_lahnasti_go-market_internal_models.Product:
+  models.Product:
     properties:
       delete:
         type: boolean
@@ -19,8 +19,10 @@ definitions:
       name:
         type: string
       price:
+        minimum: 1
         type: number
       quantity:
+        minimum: 1
         type: integer
       uid:
         type: integer
@@ -30,24 +32,24 @@ definitions:
     - price
     - quantity
     type: object
-  github_com_lahnasti_go-market_internal_models.Purchase:
+  models.Purchase:
     properties:
-      id:
+      productID:
         type: integer
-      productId:
-        type: integer
+      purchase_date:
+        type: string
       quantity:
         type: integer
-      timestamp:
-        type: string
-      userId:
+      uid:
+        type: integer
+      userID:
         type: integer
     required:
-    - productId
+    - productID
     - quantity
-    - userId
+    - userID
     type: object
-  github_com_lahnasti_go-market_internal_models.User:
+  models.User:
     properties:
       email:
         type: string
@@ -62,7 +64,7 @@ definitions:
     - password
     - username
     type: object
-  github_com_lahnasti_go-market_internal_server_responses.Error:
+  responses.Error:
     properties:
       error:
         type: string
@@ -71,7 +73,7 @@ definitions:
       status:
         type: integer
     type: object
-  github_com_lahnasti_go-market_internal_server_responses.Success:
+  responses.Success:
     properties:
       data: {}
       message:
@@ -82,90 +84,27 @@ definitions:
 host: localhost:8080
 info:
   contact: {}
-  description: This is a sample server.
-  title: Your API Title
+  description: This is a sample server for market.
+  title: Go-market
   version: "1.0"
 paths:
-  /login:
-    post:
-      consumes:
-      - application/json
-      description: Выполняет вход пользователя с указанными учетными данными
-      parameters:
-      - description: Учетные данные пользователя
-        in: body
-        name: credentials
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_lahnasti_go-market_internal_models.Credentials'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-      summary: Вход пользователя
-      tags:
-      - Пользователи
   /products:
     get:
-      description: Получить список всех продуктов
+      description: Возвращает список всех продуктов
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
+            $ref: '#/definitions/responses.Success'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-      summary: Get all products
+            $ref: '#/definitions/responses.Error'
+      summary: Получить список всех продуктов
       tags:
-      - products
-    post:
-      consumes:
-      - application/json
-      description: Добавить новый продукт
-      parameters:
-      - description: Product data
-        in: body
-        name: product
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_lahnasti_go-market_internal_models.Product'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-      summary: Add a new product
-      tags:
-      - products
+      - Продукты
   /products/{id}:
     delete:
       description: Удалить продукт по ID
@@ -181,18 +120,18 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
+            $ref: '#/definitions/responses.Success'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
+            $ref: '#/definitions/responses.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-      summary: Delete a product
+            $ref: '#/definitions/responses.Error'
+      summary: Удаляет продукты по ID
       tags:
-      - products
+      - Продукты
     get:
       description: Получить продукт по ID
       parameters:
@@ -207,18 +146,18 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
+            $ref: '#/definitions/responses.Success'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
+            $ref: '#/definitions/responses.Error'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-      summary: Get a product by ID
+            $ref: '#/definitions/responses.Error'
+      summary: Получение списка продуктов по id
       tags:
-      - products
+      - Продукты
     put:
       consumes:
       - application/json
@@ -234,26 +173,86 @@ paths:
         name: product
         required: true
         schema:
-          $ref: '#/definitions/github_com_lahnasti_go-market_internal_models.Product'
+          $ref: '#/definitions/models.Product'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
+            $ref: '#/definitions/responses.Success'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
+            $ref: '#/definitions/responses.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-      summary: Update a product
+            $ref: '#/definitions/responses.Error'
+      summary: Обновление продукта
       tags:
-      - products
-  /products/{id}/purchases:
+      - Продукты
+  /products/add:
+    post:
+      consumes:
+      - application/json
+      description: Создает новый продукт
+      parameters:
+      - description: Product data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/models.Product'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responses.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Добавление нового продукта
+      tags:
+      - Продукты
+  /purchases/add:
+    post:
+      consumes:
+      - application/json
+      description: Создает новую покупку для указанного продукта
+      parameters:
+      - description: Данные о покупке
+        in: body
+        name: purchase
+        required: true
+        schema:
+          $ref: '#/definitions/models.Purchase'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/responses.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Создание покупки
+      tags:
+      - Покупки
+  /purchases/product/{id}:
     get:
       description: Возвращает список покупок для указанного продукта
       parameters:
@@ -268,82 +267,45 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
+            $ref: '#/definitions/responses.Success'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
+            $ref: '#/definitions/responses.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
+            $ref: '#/definitions/responses.Error'
       summary: Получение списка покупок по продукту
       tags:
       - Покупки
-  /purchases:
-    post:
-      consumes:
-      - application/json
-      description: Создает новую покупку для указанного продукта
+  /purchases/user/{id}:
+    get:
+      description: Возвращает список покупок для указанного пользователя
       parameters:
-      - description: Данные о покупке
-        in: body
-        name: purchase
+      - description: ID пользователя
+        in: path
+        name: id
         required: true
-        schema:
-          $ref: '#/definitions/github_com_lahnasti_go-market_internal_models.Purchase'
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
+            $ref: '#/definitions/responses.Success'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
+            $ref: '#/definitions/responses.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-      summary: Создание покупки
+            $ref: '#/definitions/responses.Error'
+      summary: Получение списка покупок пользователя
       tags:
       - Покупки
-  /users:
-    post:
-      consumes:
-      - application/json
-      description: Регистрирует нового пользователя с предоставленными данными
-      parameters:
-      - description: User information
-        in: body
-        name: user
-        required: true
-        schema:
-          $ref: '#/definitions/github_com_lahnasti_go-market_internal_models.User'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-        "409":
-          description: Conflict
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-      summary: Регистрация нового пользователя
-      tags:
-      - users
   /users/{id}:
     get:
       description: Возвращает профиль пользователя по указанному ID
@@ -359,43 +321,84 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
+            $ref: '#/definitions/responses.Success'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
+            $ref: '#/definitions/responses.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
+            $ref: '#/definitions/responses.Error'
       summary: Получение профиля пользователя
       tags:
       - Пользователи
-  /users/{id}/purchases:
-    get:
-      description: Возвращает список покупок для указанного пользователя
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Выполняет вход пользователя с указанными учетными данными
       parameters:
-      - description: ID пользователя
-        in: path
-        name: id
+      - description: Учетные данные пользователя
+        in: body
+        name: credentials
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/models.Credentials'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Success'
+            $ref: '#/definitions/responses.Success'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
+            $ref: '#/definitions/responses.Error'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/github_com_lahnasti_go-market_internal_server_responses.Error'
-      summary: Получение списка покупок пользователя
+            $ref: '#/definitions/responses.Error'
+      summary: Вход пользователя
       tags:
-      - Покупки
+      - Пользователи
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует нового пользователя с предоставленными данными
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/responses.Success'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/responses.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.Error'
+      summary: Регистрация нового пользователя
+      tags:
+      - Пользователи
 swagger: "2.0"

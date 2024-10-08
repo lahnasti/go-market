@@ -21,6 +21,7 @@ type ProductRepository interface {
 	UpdateProduct(int, models.Product) (int, error)
 	DeleteProducts() error
 	SetDeleteStatus(int) error
+	IsProductUnique(string)(bool, error)
 }
 
 type UserRepository interface {
