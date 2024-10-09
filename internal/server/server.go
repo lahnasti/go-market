@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 	"github.com/lahnasti/go-market/internal/repository"
 	"github.com/rs/zerolog"
 	"github.com/streadway/amqp"

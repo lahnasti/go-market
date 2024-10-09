@@ -16,7 +16,6 @@ import (
 	"github.com/lahnasti/go-market/internal/server"
 	"github.com/lahnasti/go-market/internal/server/routes"
 
-	
 	"golang.org/x/sync/errgroup"
 )
 

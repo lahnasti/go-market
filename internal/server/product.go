@@ -15,14 +15,24 @@ func (s *Server) deleter(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
+			s.log.Info().Msg("Deleter shutting down")
 			return
 		case <-time.After(time.Second):
-			if len(s.deleteChan) == 5 {
+			if len(s.deleteChan) >= 5 { // Проверьте, что количество для удаления >= 5
 				for i := 0; i < 5; i++ {
-					<-s.deleteChan
+					select {
+					case uid := <-s.deleteChan:
+						// Обрабатываем UID для удаления
+						s.log.Info().Int("uid", uid).Msg("Marking product for deletion")
+					default:
+						// Если канал пуст, выходим из цикла
+						return
+					}
 				}
 				if err := s.Db.DeleteProducts(); err != nil {
 					s.ErrorChan <- err
+					s.log.Error().Err(err).Msg("Failed to delete products")
+
 					return
 				}
 			}
@@ -93,14 +103,19 @@ func (s *Server) AddProductHandler(ctx *gin.Context) {
 		responses.SendError(ctx, http.StatusBadRequest, "Not a valid product", err)
 		return
 	}
+
+	if product.Quantity < 0 {
+		responses.SendError(ctx, http.StatusBadRequest, "Quantity cannot be negative", nil)
+		return
+	}
 	exists, err := s.Db.IsProductUnique(product.Name)
 	if err != nil {
 		responses.SendError(ctx, http.StatusInternalServerError, "error", err)
-        return
+		return
 	}
 	if !exists {
 		responses.SendError(ctx, http.StatusBadRequest, "Product name already exists", nil)
-        return
+		return
 	}
 
 	productUID, err := s.Db.AddProduct(product)
@@ -129,6 +144,7 @@ func (s *Server) UpdateProductHandler(ctx *gin.Context) {
 		responses.SendError(ctx, http.StatusBadRequest, "Invalid request data", err)
 		return
 	}
+
 	if err := s.Valid.Struct(product); err != nil {
 		responses.SendError(ctx, http.StatusBadRequest, "Not a valid product", err)
 		return
@@ -174,5 +190,6 @@ func (s *Server) DeleteProductHandler(ctx *gin.Context) {
 		return
 	}
 	s.deleteChan <- uIdInt
+
 	responses.SendSuccess(ctx, http.StatusOK, "Product deleted", uIdInt)
 }
