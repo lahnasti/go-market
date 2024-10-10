@@ -2,6 +2,8 @@ package server
 
 import (
 	"context"
+	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -51,7 +53,7 @@ func (s *Server) deleter(ctx context.Context) {
 func (s *Server) GetAllProductsHandler(ctx *gin.Context) {
 	products, err := s.Db.GetAllProducts()
 	if err != nil {
-		responses.SendError(ctx, http.StatusInternalServerError, "message", err)
+		responses.SendError(ctx, http.StatusInternalServerError, "Failed to retrieve products", err)
 		return
 	}
 	responses.SendSuccess(ctx, http.StatusOK, "List of products", products)
@@ -76,8 +78,14 @@ func (s *Server) GetProductByIDHandler(ctx *gin.Context) {
 	}
 	product, err := s.Db.GetProductByID(uIdInt)
 	if err != nil {
-		responses.SendError(ctx, http.StatusNotFound, "Product not found", err)
-		return
+		log.Println("Error retrieving product:", err) // Добавьте это
+		if errors.Is(err, responses.ErrNotFound) {
+			responses.SendError(ctx, http.StatusNotFound, "Product not found", err)
+			return
+		} else {
+			responses.SendError(ctx, http.StatusInternalServerError, "message", err)
+			return
+		}
 	}
 	responses.SendSuccess(ctx, http.StatusOK, "Product found", product)
 }
