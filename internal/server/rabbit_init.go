@@ -10,6 +10,9 @@ import (
 func (s *Server) InitRabbit() error {
 	var err error
 	rabbitURL := os.Getenv("RABBITMQ_HOST")
+	if rabbitURL == "" {
+		rabbitURL = "localhost" // Значение по умолчанию
+	}
 	connStr := fmt.Sprintf("amqp://%s:%s@%s:5672/", "guest", "guest", rabbitURL)
 	s.RabbitConn, err = amqp.Dial(connStr)
 	if err != nil {

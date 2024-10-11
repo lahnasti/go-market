@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/huandu/go-sqlbuilder"
 	"github.com/lahnasti/go-market/internal/models"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -13,7 +14,11 @@ import (
 func (db *DBstorage) GetUserProfile(id int) (models.User, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	row := db.Pool.QueryRow(ctx, "SELECT * FROM users WHERE id=$1", id)
+
+	sb := sqlbuilder.NewSelectBuilder()
+	query, args := sb.Select("*").From("users").Where(sb.Equal("id", id)).BuildWithFlavor(sqlbuilder.PostgreSQL)
+
+	row := db.Pool.QueryRow(ctx, query, args...)
 	var user models.User
 	//Нужно ли пароль выводить?
 	if err := row.Scan(&user.ID, &user.Username, &user.Password, &user.Email); err != nil {
@@ -25,10 +30,16 @@ func (db *DBstorage) GetUserProfile(id int) (models.User, error) {
 func (db *DBstorage) RegisterUser(user models.User) (int, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	row := db.Pool.QueryRow(ctx, "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id", user.Username, user.Email, user.Password)
+
+	sb := sqlbuilder.NewInsertBuilder()
+	query, args := sb.InsertInto("users").Cols("username", "email", "password").
+					Values(user.Username, user.Email, user.Password).
+					BuildWithFlavor(sqlbuilder.PostgreSQL)
+	query += " RETURNING id"
 	var ID int
-	if err := row.Scan(&ID); err != nil {
-		return -1, err
+	err := db.Pool.QueryRow(ctx, query, args...).Scan(&ID)
+	if err != nil {
+		return -1, fmt.Errorf("failes to insert user: %w", err)
 	}
 	return ID, nil
 }
@@ -38,7 +49,10 @@ func (db *DBstorage) LoginUser(username string, password string) (int, error) {
 	defer cancel()
 	var userID int
 	var hashedPassword string
-	row := db.Pool.QueryRow(ctx, "SELECT id, password FROM users WHERE username=$1", username)
+
+	sb := sqlbuilder.NewSelectBuilder()
+	query, args := sb.Select("id", "password").From("users").Where(sb.Equal("username", username)).BuildWithFlavor(sqlbuilder.PostgreSQL)
+	row := db.Pool.QueryRow(ctx, query, args...)
 	if err := row.Scan(&userID, &hashedPassword); err != nil {
 		if err == sql.ErrNoRows {
 			return -1, fmt.Errorf("user not found")
@@ -56,13 +70,15 @@ func (db *DBstorage) LoginUser(username string, password string) (int, error) {
 	return userID, nil
 }
 
-func (db *DBstorage) IsUsernameUnique(username string)(bool, error) {
+func (db *DBstorage) IsUsernameUnique(username string) (bool, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	var count int
-	row := db.Pool.QueryRow(ctx, "SELECT COUNT(*) FROM users WHERE username=$1", username)
-    if err := row.Scan(&count); err!= nil {
-        return false, fmt.Errorf("failed to check username existence: %w", err)
-    }
+	sb := sqlbuilder.NewSelectBuilder()
+	query, args := sb.Select("COUNT(*)").From("users").Where(sb.Equal("username", username)).BuildWithFlavor(sqlbuilder.PostgreSQL)
+	err := db.Pool.QueryRow(ctx, query, args...).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("failed to check username existence: %w", err)
+	}
 	return count == 0, nil
 }

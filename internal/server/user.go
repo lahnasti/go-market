@@ -54,7 +54,7 @@ func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 		return
 	}
 	if err := s.Valid.Struct(user); err != nil {
-		responses.SendError(ctx, http.StatusBadRequest, "Not a valid purchase", err)
+		responses.SendError(ctx, http.StatusBadRequest, "Invalid user data", err)
 		return
 	}
 
@@ -68,18 +68,19 @@ func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 		return
 	}
 
-	isUnique, err := s.isUsernameUnique(user.Username)
+	exists, err := s.Db.IsUsernameUnique(user.Username)
 	if err != nil {
-		responses.SendError(ctx, http.StatusInternalServerError, "Failed to check username uniqueness", err)
+		responses.SendError(ctx, http.StatusInternalServerError, "error", err)
 		return
 	}
-	if !isUnique {
-		responses.SendError(ctx, http.StatusConflict, "Username already taken", nil)
+	if !exists {
+		responses.SendError(ctx, http.StatusBadRequest, "Username already exists", nil)
 		return
 	}
 
 	hash, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
+		s.log.Error().Err(err).Msg("Error generating password hash")
 		responses.SendError(ctx, http.StatusInternalServerError, "Failed to hash password", err)
 		return
 	}
@@ -89,10 +90,13 @@ func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 		responses.SendError(ctx, http.StatusInternalServerError, "Failed to register user", err)
 		return
 	}
-	if err := s.sendUserRegisteredMessage(user, id); err!=nil {
+	go func() {
+	if err := s.sendUserRegisteredMessage(user, id); err != nil {
+		s.log.Error().Err(err).Msg("Failed to send user registered message")
 		responses.SendError(ctx, http.StatusInternalServerError, "Failed to send user registered message", err)
-        return
+		return
 	}
+}()
 	responses.SendSuccess(ctx, http.StatusCreated, "User registered successfully", id)
 }
 

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
-	"github.com/lahnasti/go-market/mocks"
+	//"github.com/lahnasti/go-market/mocks"
 )
 
 func TestMakePurchaseHandler(t *testing.T) {
@@ -13,10 +13,10 @@ func TestMakePurchaseHandler(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	m := new(mocks.Repository)
-	srv := &Server{
-        Db:    m,
-		
-    }
+	//m := new(mocks.Repository)
+	//srv := &Server{
+//        Db:    m,
+
+  //  }
 
 }

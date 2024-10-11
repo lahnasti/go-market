@@ -37,15 +37,17 @@ func main() {
 	cfg := config.ReadConfig()
 	zlog := logger.SetupLogger(cfg.DebugFlag)
 	zlog.Debug().Any("config", cfg).Msg("Check cfg value")
-	err := repository.Migrations(cfg.DBAddr, cfg.MPath, zlog)
-	if err != nil {
-		zlog.Fatal().Err(err).Msg("Init migrations failed")
-	}
+
 	pool, err := initDB(cfg.DBAddr)
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Connection DB failed")
 	}
 	defer pool.Close()
+
+	err = repository.Migrations(cfg.DBAddr, cfg.MPath, zlog)
+	if err != nil {
+		zlog.Fatal().Err(err).Msg("Init migrations failed")
+	}
 
 	dbStorage, err := repository.NewDB(pool)
 	if err != nil {

@@ -23,13 +23,17 @@ func NewServer(ctx context.Context, db repository.Repository, zlog *zerolog.Logg
 	validate := validator.New()
 	dChan := make(chan int, 5)
 	errChan := make(chan error)
-	srv := Server{
+	srv := &Server{
 		Db:         db,
 		deleteChan: dChan,
 		ErrorChan:  errChan,
 		log:        *zlog,
 		Valid:      validate,
 	}
+	err := srv.InitRabbit()
+	if err != nil {
+		zlog.Fatal().Err(err).Msg("RabbitMQ connection failed")
+	}
 	go srv.deleter(ctx)
-	return &srv
+	return srv
 }

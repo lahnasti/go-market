@@ -35,7 +35,3 @@ func isValidPass(password string)bool {
     }
 	return true
 }
-
-func(s *Server) isUsernameUnique(username string)(bool, error) {
-	return s.Db.IsUsernameUnique(username)
-}

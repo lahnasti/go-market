@@ -8,7 +8,7 @@ services:
       - POSTGRES_PASSWORD=pgspgs
       - POSTGRES_DB=market
     ports:
-      - "5432:5433"
+      - "5434:5432"
     volumes:
       - ./migrations:/docker-entrypoint-initdb.d
 
@@ -32,8 +32,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - DB_DSB=postgres://nastya:pgspgs@db:5433/market?sslmode=disable
+      - DB_DSB=postgres://nastya:pgspgs@db:5432/market?sslmode=disable
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=guest
       - RABBITMQ_PASS=guest
+    restart: on-failure
