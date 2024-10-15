@@ -1,0 +1,64 @@
+package config
+
+import (
+	"flag"
+	"os"
+)
+
+type Config struct {
+	Addr      string
+	DBAddr    string
+	MPath     string
+	DebugFlag bool
+	RabbitMQHost string
+}
+
+const (
+	defaultAddr        = ":8080"
+	defaultDbDSN       = "postgres://nastya:pgspgs@db:5432/market?sslmode=disable"
+	defaultMigratePath = "migrations"
+)
+
+var 	defaultRabbitMQHost = "localhost"
+
+
+// Функция обработки флагов запуска
+func ReadConfig() Config {
+	var addr string
+	var dbAddr string
+	var migratePath string
+	var rabbitMQHost string
+	flag.StringVar(&addr, "addr", defaultAddr, "Server address") // mani.exe -help
+	flag.StringVar(&dbAddr, "db", defaultDbDSN, "database connection addres")
+	flag.StringVar(&migratePath, "m", defaultMigratePath, "path to migrations")
+	flag.StringVar(&rabbitMQHost, "rabbitMQ", defaultRabbitMQHost, "rabbitMQ host to connect")
+	debug := flag.Bool("debug", false, "enable debug logger level")
+	flag.Parse()
+
+	if temp := os.Getenv("SERVER_ADDR"); temp != "" {
+		if addr == defaultAddr {
+			addr = temp
+		}
+	}
+	if temp := os.Getenv("DB_DSN"); temp != "" {
+		if dbAddr == defaultDbDSN {
+			dbAddr = temp
+		}
+	}
+	if temp := os.Getenv("MIGRATE_PATH"); temp != "" {
+		migratePath = temp
+	}
+	if temp := os.Getenv("RABBITMQ_HOST"); temp != "" {
+		if defaultRabbitMQHost == "localhost" { // Проверяем на наличие значения по умолчанию
+			defaultRabbitMQHost = temp
+		}
+	}
+
+	return Config{
+		Addr:      addr,
+		DBAddr:    dbAddr,
+		MPath:     migratePath,
+		DebugFlag: *debug,
+		RabbitMQHost: defaultRabbitMQHost,
+	}
+}
