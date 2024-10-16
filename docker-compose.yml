@@ -11,6 +11,7 @@ services:
       - "5434:5432"
     volumes:
       - ./migrations:/docker-entrypoint-initdb.d
+    restart: on-failure
 
   rabbitmq:
     image: rabbitmq:3-management
@@ -21,18 +22,43 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    restart: on-failure
 
-  server:
+
+  auth:
     build:
-      context: .
-    container_name: server
+      context: ./auth
+      dockerfile: Dockerfile
+    container_name: auth
+    volumes:
+      - ./auth/migrations:/app/migrations
+    environment:
+      - DB_DSN=postgres://nastya:pgspgs@db:5432/auth?sslmode=disable
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - rabbitmq
+    restart: on-failure
+
+  products:
+    build:
+      context: ./products
+      dockerfile: Dockerfile
+    container_name: market
+    volumes:
+      - ./products/migrations:/app/migrations
     depends_on:
       - db
       - rabbitmq
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
-      - DB_DSB=postgres://nastya:pgspgs@db:5432/market?sslmode=disable
+      - DB_DSN=postgres://nastya:pgspgs@db:5432/market?sslmode=disable
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USER=guest

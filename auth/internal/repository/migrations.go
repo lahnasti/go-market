@@ -6,9 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/golang-migrate/migrate"
 	"github.com/rs/zerolog"
 )
 
@@ -36,7 +34,7 @@ func Migrations(dbAddr, migrationsPath string, zlog *zerolog.Logger, schema stri
 		}
 		return err
 	}
-	
+
 	zlog.Debug().Msg("Migrate complete")
 	return nil
 }

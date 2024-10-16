@@ -9,13 +9,11 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	_ "github.com/lahnasti/go-market/docs"
-	"github.com/lahnasti/go-market/internal/config"
-	"github.com/lahnasti/go-market/internal/logger"
-	"github.com/lahnasti/go-market/internal/repository"
-	"github.com/lahnasti/go-market/internal/server"
-	"github.com/lahnasti/go-market/internal/server/routes"
-
+	"github.com/lahnasti/go-market/auth/internal/config"
+	"github.com/lahnasti/go-market/auth/internal/logger"
+	"github.com/lahnasti/go-market/auth/internal/repository"
+	"github.com/lahnasti/go-market/auth/internal/server"
+	"github.com/lahnasti/go-market/auth/internal/server/routes"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -36,7 +34,7 @@ func main() {
 	fmt.Println("Server starting")
 	cfg := config.ReadConfig()
 	zlog := logger.SetupLogger(cfg.DebugFlag)
-	zlog.Debug().Any("config", cfg).Msg("Check cfg value")
+	//zlog.Debug().Any("config", cfg).Msg("Check cfg value")
 
 	pool, err := initDB(cfg.DBAddr)
 	if err != nil {
@@ -44,7 +42,7 @@ func main() {
 	}
 	defer pool.Close()
 
-	err = repository.Migrations(cfg.DBAddr, cfg.MPath, zlog)
+	err = repository.Migrations(cfg.DBAddr, cfg.MPath, zlog, "users")
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Init migrations failed")
 	}
@@ -58,7 +56,7 @@ func main() {
 	group, gCtx := errgroup.WithContext(ctx)
 	srv := server.NewServer(gCtx, dbStorage, zlog)
 	group.Go(func() error {
-		r := routes.SetupRoutes(srv)
+		r := routes.SetupAuthRoutes(srv)
 		zlog.Info().Msg("Server was started")
 
 		if err := r.Run(cfg.Addr); err != nil {

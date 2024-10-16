@@ -33,8 +33,8 @@ func (db *DBstorage) RegisterUser(user models.User) (int, error) {
 
 	sb := sqlbuilder.NewInsertBuilder()
 	query, args := sb.InsertInto("users").Cols("username", "email", "password").
-					Values(user.Username, user.Email, user.Password).
-					BuildWithFlavor(sqlbuilder.PostgreSQL)
+		Values(user.Username, user.Email, user.Password).
+		BuildWithFlavor(sqlbuilder.PostgreSQL)
 	query += " RETURNING id"
 	var ID int
 	err := db.Pool.QueryRow(ctx, query, args...).Scan(&ID)

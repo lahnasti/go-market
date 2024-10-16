@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lahnasti/go-market/auth/internal/server/responses"
 	"github.com/lahnasti/go-market/auth/internal/models"
+	"github.com/lahnasti/go-market/auth/internal/server/responses"
 	"golang.org/x/crypto/bcrypt"
 )
 

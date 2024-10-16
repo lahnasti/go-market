@@ -14,7 +14,7 @@ type Config struct {
 }
 
 const (
-	defaultAddr        = ":8080"
+	defaultAddr        = ":8081"
 	defaultDbDSN       = "postgres://nastya:pgspgs@db:5432/market?sslmode=disable"
 	defaultMigratePath = "migrations"
 )

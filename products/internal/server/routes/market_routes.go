@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lahnasti/go-market/internal/server"
+	"github.com/lahnasti/go-market/products/internal/server"
 
 )
 

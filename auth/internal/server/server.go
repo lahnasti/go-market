@@ -3,19 +3,18 @@ package server
 import (
 	"context"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator"
 	"github.com/lahnasti/go-market/auth/internal/repository"
-	"github.com/lahnasti/go-market/lib/rabbitmq"
 	"github.com/rs/zerolog"
+	"github.com/lahnasti/go-market/lib/rabbitmq"
 )
 
 type Server struct {
-	Db         repository.UserRepository
-	ErrorChan  chan error
-	deleteChan chan int
-	Valid      *validator.Validate
-	log        zerolog.Logger
-	Rabbit     *rabbitmq.RabbitMQ
+	Db        repository.UserRepository
+	ErrorChan chan error
+	Valid     *validator.Validate
+	log       zerolog.Logger
+	Rabbit    *rabbitmq.RabbitMQ
 }
 
 func NewServer(ctx context.Context, db repository.UserRepository, zlog *zerolog.Logger) *Server {
@@ -30,7 +29,7 @@ func NewServer(ctx context.Context, db repository.UserRepository, zlog *zerolog.
 		ErrorChan: errChan,
 		log:       *zlog,
 		Valid:     validate,
-		Rabbit: rabbitClient,
+		Rabbit:    rabbitClient,
 	}
 	return srv
 }

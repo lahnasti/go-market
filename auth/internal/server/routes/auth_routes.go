@@ -2,7 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lahnasti/go-market/auth_service/internal/server"
+	"github.com/lahnasti/go-market/auth/internal/server"
 )
 
 func SetupAuthRoutes(s *server.Server) *gin.Engine  {
