@@ -1,4 +1,4 @@
-module github.com/lahnasti/go-market/database
+module github.com/lahnasti/go-market/create_db
 
 go 1.23.1
 
