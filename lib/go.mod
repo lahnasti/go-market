@@ -1,4 +1,4 @@
-module github.com/lahnasti/go-market/lib/rabbitmq
+module github.com/lahnasti/go-market/lib
 
 go 1.23.1
 
