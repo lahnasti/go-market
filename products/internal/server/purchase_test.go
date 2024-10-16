@@ -15,8 +15,8 @@ func TestMakePurchaseHandler(t *testing.T) {
 
 	//m := new(mocks.Repository)
 	//srv := &Server{
-//        Db:    m,
+	//        Db:    m,
 
-  //  }
+	//  }
 
 }

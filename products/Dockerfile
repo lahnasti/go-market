@@ -1,5 +1,5 @@
 # Dockerfile для products сервиса
-FROM golang:1.22.4
+FROM golang:1.23.1
 
 WORKDIR /market
 

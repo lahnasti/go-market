@@ -42,6 +42,9 @@ func main() {
 	}
 	defer pool.Close()
 
+	err = db.EnsureAuthDatabaseExists(pool, "auth")
+	
+
 	err = repository.Migrations(cfg.DBAddr, cfg.MPath, zlog, "users")
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Init migrations failed")

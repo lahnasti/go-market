@@ -24,7 +24,7 @@ func Migrations(dbAddr, migrationsPath string, zlog *zerolog.Logger, schema stri
 	}
 	migratePath := fmt.Sprintf("file://%s", absolutePath)
 
-	m, err := migrate.New(migratePath, fmt.Sprintf("%s?search_path=%s", dbAddr, schema))
+	m, err := migrate.New(migratePath, fmt.Sprintf("%s&search_path=%s", dbAddr, schema))
 	if err != nil {
 		return err
 	}
@@ -36,7 +36,7 @@ func Migrations(dbAddr, migrationsPath string, zlog *zerolog.Logger, schema stri
 		}
 		return err
 	}
-	
+
 	zlog.Debug().Msg("Migrate complete")
 	return nil
 }
