@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/golang-migrate/migrate/v4/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/lahnasti/go-market/auth/internal/config"
 	"github.com/lahnasti/go-market/auth/internal/logger"
@@ -42,8 +43,8 @@ func main() {
 	}
 	defer pool.Close()
 
-	err = db.EnsureAuthDatabaseExists(pool, "auth")
-	
+	err = create_db.EnsureAuthDatabaseExists(pool, "auth")
+
 
 	err = repository.Migrations(cfg.DBAddr, cfg.MPath, zlog, "users")
 	if err != nil {
