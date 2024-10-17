@@ -90,13 +90,7 @@ func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 		responses.SendError(ctx, http.StatusInternalServerError, "Failed to register user", err)
 		return
 	}
-	go func() {
-		if err := s.sendUserRegisteredMessage(user, id); err != nil {
-			s.log.Error().Err(err).Msg("Failed to send user registered message")
-			responses.SendError(ctx, http.StatusInternalServerError, "Failed to send user registered message", err)
-			return
-		}
-	}()
+	
 	responses.SendSuccess(ctx, http.StatusCreated, "User registered successfully", id)
 }
 

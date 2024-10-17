@@ -19,7 +19,7 @@ const (
 	defaultMigratePath = "migrations"
 )
 
-var 	defaultRabbitMQHost = "localhost"
+var 	defaultRabbitMQHost = "rabbitmq"
 
 
 // Функция обработки флагов запуска
@@ -49,7 +49,7 @@ func ReadConfig() Config {
 		migratePath = temp
 	}
 	if temp := os.Getenv("RABBITMQ_HOST"); temp != "" {
-		if defaultRabbitMQHost == "localhost" { // Проверяем на наличие значения по умолчанию
+		if defaultRabbitMQHost == "rabbitmq" { // Проверяем на наличие значения по умолчанию
 			defaultRabbitMQHost = temp
 		}
 	}

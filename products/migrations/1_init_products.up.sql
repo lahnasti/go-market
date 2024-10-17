@@ -1,6 +1,4 @@
-CREATE SCHEMA IF NOT EXISTS products;
-
-CREATE TABLE IF NOT EXISTS products.products
+CREATE TABLE IF NOT EXISTS products
     (
         uid serial PRIMARY KEY,
         name TEXT NOT NULL,
@@ -10,7 +8,7 @@ CREATE TABLE IF NOT EXISTS products.products
         quantity INT NOT NULL
     );
 
-CREATE TABLE IF NOT EXISTS products.purchases
+CREATE TABLE IF NOT EXISTS purchases
     (
         uid serial PRIMARY KEY,
         user_id INT NOT NULL REFERENCES users(id),

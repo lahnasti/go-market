@@ -12,7 +12,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func Migrations(dbAddr, migrationsPath string, zlog *zerolog.Logger, schema string) error {
+func Migrations(dbAddr, migrationsPath string, zlog *zerolog.Logger) error {
 	// Проверка существования директории миграций
 	if _, err := os.Stat(migrationsPath); os.IsNotExist(err) {
 		return fmt.Errorf("migrations path does not exist: %s", migrationsPath)
@@ -24,7 +24,7 @@ func Migrations(dbAddr, migrationsPath string, zlog *zerolog.Logger, schema stri
 	}
 	migratePath := fmt.Sprintf("file://%s", absolutePath)
 
-	m, err := migrate.New(migratePath, fmt.Sprintf("%s&search_path=%s", dbAddr, schema))
+	m, err := migrate.New(migratePath, dbAddr)
 	if err != nil {
 		return err
 	}

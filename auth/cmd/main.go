@@ -3,18 +3,19 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/golang-migrate/migrate/v4/database"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/lahnasti/go-market/auth/internal/config"
 	"github.com/lahnasti/go-market/auth/internal/logger"
 	"github.com/lahnasti/go-market/auth/internal/repository"
 	"github.com/lahnasti/go-market/auth/internal/server"
 	"github.com/lahnasti/go-market/auth/internal/server/routes"
+	"github.com/lahnasti/go-market/lib/rabbitmq"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -37,16 +38,43 @@ func main() {
 	zlog := logger.SetupLogger(cfg.DebugFlag)
 	//zlog.Debug().Any("config", cfg).Msg("Check cfg value")
 
-	pool, err := initDB(cfg.DBAddr)
+	rabbitURL := os.Getenv("RABBITMQ_URL")
+	rabbit, err := rabbitmq.InitRabbit(rabbitURL)
+	if err != nil {
+		log.Fatalf("Failed to connect to RabbitMQ: %s", err)
+	}
+	defer rabbit.CloseRabbit()
+
+	// Создаём пул соединений
+	pool, err := pgxpool.New(ctx, cfg.DBAddr) // используем cfg.DBAddr для подключения через пул
+	if err != nil {
+		fmt.Println("Failed to connect to PostgreSQL:", err)
+		return
+	}
+	defer pool.Close()
+
+	// Получаем соединение из пула
+	conn, err := pool.Acquire(ctx) // Используем Acquire для получения соединения
+	if err != nil {
+		fmt.Println("Failed to acquire connection:", err)
+		return
+	}
+	defer conn.Release() // Освобождаем соединение, когда оно не нужно
+
+	// Проверяем и создаём базу данных для сервиса auth
+	err = repository.EnsureAuthDatabaseExists(conn)
+	if err != nil {
+		fmt.Println("Failed to ensure auth database exists:", err)
+		return
+	}
+
+	pool, err = initDB(cfg.DBAddr)
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Connection DB failed")
 	}
 	defer pool.Close()
 
-	err = create_db.EnsureAuthDatabaseExists(pool, "auth")
-
-
-	err = repository.Migrations(cfg.DBAddr, cfg.MPath, zlog, "users")
+	err = repository.Migrations(cfg.DBAddr, cfg.MPath, zlog)
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Init migrations failed")
 	}
@@ -58,7 +86,7 @@ func main() {
 	defer dbStorage.Close()
 
 	group, gCtx := errgroup.WithContext(ctx)
-	srv := server.NewServer(gCtx, dbStorage, zlog)
+	srv := server.NewServer(gCtx, dbStorage, zlog, rabbit)
 	group.Go(func() error {
 		r := routes.SetupAuthRoutes(srv)
 		zlog.Info().Msg("Server was started")

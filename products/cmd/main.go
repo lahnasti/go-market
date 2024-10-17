@@ -10,6 +10,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/lahnasti/go-market/lib/rabbitmq"
 	"github.com/lahnasti/go-market/products/internal/config"
 	"github.com/lahnasti/go-market/products/internal/logger"
 	"github.com/lahnasti/go-market/products/internal/repository"
@@ -38,13 +39,43 @@ func main() {
 	zlog := logger.SetupLogger(cfg.DebugFlag)
 	zlog.Debug().Any("config", cfg).Msg("Check cfg value")
 
-	pool, err := initDB(cfg.DBAddr)
+	rabbit, err := rabbitmq.InitRabbit()
+	if err != nil {
+		zlog.Fatal().Err(err).Msg("RabbitMQ connection failed")
+		return
+	}
+	defer rabbit.CloseRabbit()
+	fmt.Println("Connected to RabbitMQ")
+	// Создаём пул соединений
+	pool, err := pgxpool.New(ctx, cfg.DBAddr) // используем cfg.DBAddr для подключения через пул
+	if err != nil {
+		fmt.Println("Failed to connect to PostgreSQL:", err)
+		return
+	}
+	defer pool.Close()
+
+	// Получаем соединение из пула
+	conn, err := pool.Acquire(ctx) // Используем Acquire для получения соединения
+	if err != nil {
+		fmt.Println("Failed to acquire connection:", err)
+		return
+	}
+	defer conn.Release() // Освобождаем соединение, когда оно не нужно
+
+	// Проверяем и создаём базу данных для сервиса auth
+	err = repository.EnsureMarketDatabaseExists(conn)
+	if err != nil {
+		fmt.Println("Failed to ensure auth database exists:", err)
+		return
+	}
+
+	pool, err = initDB(cfg.DBAddr)
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Connection DB failed")
 	}
 	defer pool.Close()
 
-	err = repository.Migrations(cfg.DBAddr, cfg.MPath, zlog, "products")
+	err = repository.Migrations(cfg.DBAddr, cfg.MPath, zlog)
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Init migrations failed")
 	}

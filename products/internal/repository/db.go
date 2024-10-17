@@ -1,28 +1,21 @@
-// internal/db/db.go
-package database
+package repository
 
 import (
 	"context"
 	"fmt"
 	"log"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 // EnsureAuthDatabaseExists проверяет наличие базы данных для сервиса auth и создаёт её при необходимости.
-func EnsureAuthDatabaseExists(conn *pgx.Conn) error {
-	const dbName = "auth"
-	return ensureDatabaseExists(conn, dbName)
-}
-
-// EnsureMarketDatabaseExists проверяет наличие базы данных для сервиса market и создаёт её при необходимости.
-func EnsureMarketDatabaseExists(conn *pgx.Conn) error {
+func EnsureMarketDatabaseExists(conn *pgxpool.Conn) error {
 	const dbName = "market"
-	return ensureDatabaseExists(conn, dbName)
+	return EnsureDatabaseExists(conn, dbName)
 }
 
 // Общая функция для проверки и создания базы данных
-func ensureDatabaseExists(conn *pgx.Conn, dbName string) error {
+func EnsureDatabaseExists(conn *pgxpool.Conn, dbName string) error {
 	// Проверяем, существует ли база данных
 	var exists bool
 	err := conn.QueryRow(context.Background(), "SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1)", dbName).Scan(&exists)

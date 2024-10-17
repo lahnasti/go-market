@@ -1,6 +1,4 @@
-CREATE SCHEMA IF NOT EXISTS users;
-
-CREATE TABLE IF NOT EXISTS users.users
+CREATE TABLE IF NOT EXISTS users
     (
         id serial PRIMARY KEY,
         username TEXT NOT NULL UNIQUE,
