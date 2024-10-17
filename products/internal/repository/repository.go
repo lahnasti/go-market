@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/lahnasti/go-market/products/internal/models"
+import "github.com/lahnasti/go-market/common/models"
 
 type Repository interface {
 	PurchaseRepository
@@ -20,5 +20,5 @@ type ProductRepository interface {
 	UpdateProduct(int, models.Product) (int, error)
 	DeleteProducts() error
 	SetDeleteStatus(int) error
-	IsProductUnique(string)(bool, error)
+	IsProductUnique(string) (bool, error)
 }

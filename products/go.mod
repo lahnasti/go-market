@@ -6,6 +6,7 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0
 	github.com/golang/mock v1.6.0
 	github.com/jackc/pgx/v5 v5.7.1
+	github.com/lahnasti/go-market/common v0.0.0-20241017143254-b617c5a9cdf1
 	github.com/lahnasti/go-market/lib v0.0.0-20241017095002-e64c25fb6d6e
 	golang.org/x/sync v0.8.0
 )
@@ -26,7 +27,6 @@ require (
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
-	github.com/lahnasti/go-market/common v0.0.0-20241017141206-42e656bb7aae // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

@@ -6,9 +6,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lahnasti/go-market/products/internal/models"
+	"github.com/lahnasti/go-market/common/models"
 	"github.com/lahnasti/go-market/products/internal/server/responses"
-	"github.com/lahnasti/go-market/auth/internal/server"
 )
 
 // MakePurchaseHandler обрабатывает создание новой покупки
@@ -42,10 +41,10 @@ func (s *Server) MakePurchaseHandler(ctx *gin.Context) {
 	err = s.Rabbit.PublishMessage("user_check_queue", userCheckMes)
 	if err != nil {
 		responses.SendError(ctx, http.StatusInternalServerError, "Failed to send user check request", err)
-        return
+		return
 	}
-	userValid, err := s.WaitForUserCheckResponse()
-	if err != nil || !userValid {
+	userCheckResponse, err := s.WaitForUserCheckResponse()
+	if err != nil || !userCheckResponse.Valid {
 		responses.SendError(ctx, http.StatusNotFound, "User not found or invalid", err)
 		return
 	}

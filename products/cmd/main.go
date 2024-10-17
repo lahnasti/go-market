@@ -86,7 +86,7 @@ func main() {
 	defer dbStorage.Close()
 
 	group, gCtx := errgroup.WithContext(ctx)
-	srv := server.NewServer(gCtx, dbStorage, zlog)
+	srv := server.NewServer(gCtx, dbStorage, zlog, rabbit)
 	group.Go(func() error {
 		r := routes.SetupMarketRoutes(srv)
 		zlog.Info().Msg("Server was started")

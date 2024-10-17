@@ -3,10 +3,12 @@ package server
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/lahnasti/go-market/common/models"
 )
 
 func (s *Server) WaitForUserCheckResponse() (models.UserCheckResponse, error) {
-	var response UserCheckResponse
+	var response models.UserCheckResponse
 
 	// Потребляем сообщения из очереди ответов
 	messages, err := s.Rabbit.Channel.Consume(

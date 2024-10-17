@@ -4,6 +4,7 @@ go 1.23.1
 
 require (
 	github.com/jackc/pgx/v5 v5.7.1
+	github.com/lahnasti/go-market/common v0.0.0-20241017141206-42e656bb7aae
 	github.com/lahnasti/go-market/lib v0.0.0-20241017095002-e64c25fb6d6e
 	github.com/streadway/amqp v1.1.0
 )
@@ -25,7 +26,6 @@ require (
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
-	github.com/lahnasti/go-market/common v0.0.0-20241017141206-42e656bb7aae // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
