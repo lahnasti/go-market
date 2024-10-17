@@ -6,21 +6,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lahnasti/go-market/auth/internal/models"
 	"github.com/lahnasti/go-market/auth/internal/server/responses"
 	"github.com/streadway/amqp"
 )
-
-// UserCheckMessage представляет структуру сообщения для проверки пользователя
-type UserCheckMessage struct {
-	UserID int `json:"userID"`
-}
-
-// UserCheckResponse представляет структуру ответа на проверку пользователя
-type UserCheckResponse struct {
-	Valid bool        `json:"valid"`
-	User  models.User `json:"user,omitempty"`
-}
 
 func (s *Server) UserCheckHandler(msg amqp.Delivery, ctx *gin.Context) {
 	var userCheckMsg UserCheckMessage

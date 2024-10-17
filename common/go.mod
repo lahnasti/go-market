@@ -1,4 +1,4 @@
-module github.com/lahnasti/go-market/lib
+module github.com/lahnasti/go-market/common
 
 go 1.23.1
 
