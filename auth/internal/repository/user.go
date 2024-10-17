@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/huandu/go-sqlbuilder"
-	"github.com/lahnasti/go-market/auth/internal/models"
+	"github.com/lahnasti/go-market/common/models"
 	"golang.org/x/crypto/bcrypt"
 )
 

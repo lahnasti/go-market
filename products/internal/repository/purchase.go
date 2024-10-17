@@ -7,8 +7,6 @@ import (
 
 	"github.com/huandu/go-sqlbuilder"
 	"github.com/jackc/pgx/v5"
-
-	"github.com/lahnasti/go-market/products/internal/models"
 )
 
 func (db *DBstorage) MakePurchase(purchase models.Purchase) (int, error) {

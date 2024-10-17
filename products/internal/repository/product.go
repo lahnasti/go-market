@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/huandu/go-sqlbuilder"
-	"github.com/lahnasti/go-market/products/internal/models"
+	"github.com/lahnasti/go-market/common/models"
 )
 
 func (db *DBstorage) GetAllProducts() ([]models.Product, error) {

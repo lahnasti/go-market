@@ -5,8 +5,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lahnasti/go-market/auth/internal/models"
 	"github.com/lahnasti/go-market/auth/internal/server/responses"
+	"github.com/lahnasti/go-market/common/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -90,7 +90,7 @@ func (s *Server) RegisterUserHandler(ctx *gin.Context) {
 		responses.SendError(ctx, http.StatusInternalServerError, "Failed to register user", err)
 		return
 	}
-	
+
 	responses.SendSuccess(ctx, http.StatusCreated, "User registered successfully", id)
 }
 
