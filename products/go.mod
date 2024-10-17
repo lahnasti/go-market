@@ -6,7 +6,7 @@ require (
 	github.com/go-playground/validator/v10 v10.20.0
 	github.com/golang/mock v1.6.0
 	github.com/jackc/pgx/v5 v5.7.1
-	github.com/lahnasti/go-market/lib v0.0.0-20241016080132-76dcc755391c
+	github.com/lahnasti/go-market/lib v0.0.0-20241017095002-e64c25fb6d6e
 	golang.org/x/sync v0.8.0
 )
 

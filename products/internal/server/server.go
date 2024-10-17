@@ -18,14 +18,10 @@ type Server struct {
 	Rabbit     *rabbitmq.RabbitMQ
 }
 
-func NewServer(ctx context.Context, db repository.Repository, zlog *zerolog.Logger) *Server {
+func NewServer(ctx context.Context, db repository.Repository, zlog *zerolog.Logger, rabbitClient *rabbitmq.RabbitMQ) *Server {
 	validate := validator.New()
 	dChan := make(chan int, 5)
 	errChan := make(chan error)
-	rabbitClient, err := rabbitmq.InitRabbit()
-	if err != nil {
-		zlog.Fatal().Err(err).Msg("RabbitMQ connection failed")
-	}
 	srv := &Server{
 		Db:         db,
 		deleteChan: dChan,

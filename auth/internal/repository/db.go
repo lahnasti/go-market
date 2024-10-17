@@ -5,17 +5,22 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5"
 )
 
 // EnsureAuthDatabaseExists проверяет наличие базы данных для сервиса auth и создаёт её при необходимости.
-func EnsureAuthDatabaseExists(conn *pgxpool.Conn) error {
+func EnsureAuthDatabaseExists(connString string) error {
 	const dbName = "auth"
+	conn, err := pgx.Connect(context.Background(), connString)
+	if err != nil {
+		return fmt.Errorf("failed to connect to PostgreSQL: %w", err)
+	}
+	defer conn.Close(context.Background())
 	return EnsureDatabaseExists(conn, dbName)
 }
 
 // Общая функция для проверки и создания базы данных
-func EnsureDatabaseExists(conn *pgxpool.Conn, dbName string) error {
+func EnsureDatabaseExists(conn *pgx.Conn, dbName string) error {
 	// Проверяем, существует ли база данных
 	var exists bool
 	err := conn.QueryRow(context.Background(), "SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1)", dbName).Scan(&exists)

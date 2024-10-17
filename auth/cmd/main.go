@@ -45,8 +45,14 @@ func main() {
 	}
 	defer rabbit.CloseRabbit()
 
-	// Создаём пул соединений
-	pool, err := pgxpool.New(ctx, cfg.DBAddr) // используем cfg.DBAddr для подключения через пул
+	// Проверяем и создаём базу данных для сервиса auth
+	err = repository.EnsureAuthDatabaseExists(cfg.DBAddr)
+	if err != nil {
+		fmt.Println("Failed to ensure auth database exists:", err)
+		return
+	}
+
+	pool, err := pgxpool.New(ctx, cfg.DBAddr)
 	if err != nil {
 		fmt.Println("Failed to connect to PostgreSQL:", err)
 		return
@@ -54,20 +60,13 @@ func main() {
 	defer pool.Close()
 
 	// Получаем соединение из пула
-	conn, err := pool.Acquire(ctx) // Используем Acquire для получения соединения
+	conn, err := pool.Acquire(ctx)
 	if err != nil {
 		fmt.Println("Failed to acquire connection:", err)
 		return
 	}
-	defer conn.Release() // Освобождаем соединение, когда оно не нужно
-
-	// Проверяем и создаём базу данных для сервиса auth
-	err = repository.EnsureAuthDatabaseExists(conn)
-	if err != nil {
-		fmt.Println("Failed to ensure auth database exists:", err)
-		return
-	}
-
+	defer conn.Release()
+	
 	pool, err = initDB(cfg.DBAddr)
 	if err != nil {
 		zlog.Fatal().Err(err).Msg("Connection DB failed")

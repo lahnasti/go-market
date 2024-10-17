@@ -4,7 +4,8 @@ go 1.23.1
 
 require (
 	github.com/jackc/pgx/v5 v5.7.1
-	github.com/lahnasti/go-market/lib v0.0.0-20241016080132-76dcc755391c
+	github.com/lahnasti/go-market/lib v0.0.0-20241017095002-e64c25fb6d6e
+	github.com/streadway/amqp v1.1.0
 )
 
 require (
@@ -33,7 +34,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.13.1 // indirect
-	github.com/streadway/amqp v1.1.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	go.uber.org/atomic v1.7.0 // indirect

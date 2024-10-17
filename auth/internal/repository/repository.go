@@ -1,6 +1,6 @@
 package repository
 
-import "github.com/lahnasti/go-market/auth/internal/models"
+import "github.com/lahnasti/go-market/common/models"
 
 
 type UserRepository interface {
